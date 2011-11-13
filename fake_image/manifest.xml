@@ -1,0 +1,15 @@
+<package>
+  <description brief="fake_image">
+
+     fake_image
+
+  </description>
+  <author>Base Station</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/fake_image</url>
+  <depend package="geometry_msgs"/>
+
+</package>
+
+

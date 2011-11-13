@@ -1,0 +1,15 @@
+<package>
+  <description brief="drone_driver">
+
+     drone_driver
+
+  </description>
+  <author>Base Station</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/drone_driver</url>
+  <depend package="geometry_msgs"/>
+
+</package>
+
+

@@ -1,0 +1,20 @@
+<package>
+  <description brief="ardrone_surf_tag">
+
+     ardrone_surf_tag
+
+  </description>
+  <author>aghos7</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/ardrone_surf_tag</url>
+  <depend package="sensor_msgs"/>
+  <depend package="opencv2"/>
+  <depend package="cv_bridge"/>
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+  <depend package="image_transport"/>
+
+</package>
+
+

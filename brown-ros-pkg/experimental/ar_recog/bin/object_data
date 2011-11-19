@@ -1,5 +1,5 @@
 #the number of patterns to be recognized
-13
+14
 
 alpha
 patt.alpha
@@ -66,3 +66,7 @@ patt.zeta
 159.0
 0.0 0.0
 
+ell
+patt.ell
+159.0
+0.0 0.0

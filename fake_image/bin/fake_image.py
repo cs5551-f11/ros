@@ -14,14 +14,16 @@ CTRL+c to quit
 """
 
 move_bindings = {
-        68:('linear', 'y', 0.1), #left
-        67:('linear', 'y', -0.1), #right
-        65:('linear', 'x', 0.1), #forward
-        66:('linear', 'x', -0.1), #back
-        'w':('linear', 'z', 0.1),
-        's':('linear', 'z', -0.1),
+        68:('linear', 'y', 0.3), #left
+        67:('linear', 'y', -0.3), #right
+        65:('linear', 'x', 0.3), #forward
+        66:('linear', 'x', -0.3), #back
+        'w':('linear', 'z', 0.3),
+        's':('linear', 'z', -0.3),
         'a':('angular', 'z', 1),
         'd':('angular', 'z', -1),
+        'm':('linear', 'x', 0),
+        'n':('linear', 'y', 0),
            }
 
 def getKey():
@@ -37,6 +39,7 @@ if __name__=="__main__":
     print msg
     
     pub = rospy.Publisher('image_pos', TwistStamped)
+#    pub = rospy.Publisher('cmd_vel', Twist)
     rospy.init_node('fake_image')
     prevTwist = TwistStamped()
 
@@ -44,36 +47,64 @@ if __name__=="__main__":
         while(True):
             key = getKey()
 
-#            twist = TwistStamped()
-#            if ord(key) in move_bindings.keys():
-#                                key = ord(key)
-#            if key in move_bindings.keys():
-#                (lin_ang, xyz, speed) = move_bindings[key]
-#                setattr(getattr(twist.twist, lin_ang), xyz, speed)
-#            else:
-#                if (key == '\x03'):
-#                    break
-#            prevTwist.header.frame_id = "%c" % key
-#            prevTwist.header.seq += 1
-#            prevTwist.twist.linear.x += twist.twist.linear.x
-#            prevTwist.twist.linear.y += twist.twist.linear.y
-#            prevTwist.twist.linear.z += twist.twist.linear.z
-#            prevTwist.twist.angular.x += twist.twist.angular.x
-#            prevTwist.twist.angular.y += twist.twist.angular.y
-#            prevTwist.twist.angular.z += twist.twist.angular.z
-#            print prevTwist
+            twist = TwistStamped()
+            if ord(key) in move_bindings.keys():
+                                key = ord(key)
+            if key in move_bindings.keys():
+                (lin_ang, xyz, speed) = move_bindings[key]
+                setattr(getattr(twist.twist, lin_ang), xyz, speed)
+            else:
+                if (key == '\x03'):
+                    break
+            twist.header.frame_id = "%c" % key
+            twist.header.seq += 1
+            if twist.twist.linear.x != 0:
+                twist.twist.linear.y = twist.twist.linear.x
+            elif twist.twist.linear.y != 0:
+                twist.twist.linear.x = twist.twist.linear.y
+            print prevTwist
+            pub.publish(twist)
+#            pub.publish(twist.twist)
+
+            
 
 
 
-            if (key == '\x03'):
-                break
-            prevTwist.twist.linear.x = random.uniform(0,0.2)
-            prevTwist.twist.linear.y = random.uniform(0,0.2)
-            prevTwist.twist.linear.z = 0
-            prevTwist.twist.angular.x = 0
-            prevTwist.twist.angular.y = 0
-            prevTwist.twist.angular.z = random.uniform(0,1)
-            pub.publish(prevTwist)
+#            if (key == '\x03'):
+#                break
+#
+#            for i in range(5):
+#                prevTwist.twist.linear.x = 0.1
+#                prevTwist.twist.linear.y = 0
+#                prevTwist.twist.linear.z = 0
+#                prevTwist.twist.angular.x = 0
+#                prevTwist.twist.angular.y = 0
+#                prevTwist.twist.angular.z = 0
+#                pub.publish(prevTwist)
+#            for i in range(5):
+#                prevTwist.twist.linear.x = 0
+#                prevTwist.twist.linear.y = 0.1
+#                prevTwist.twist.linear.z = 0
+#                prevTwist.twist.angular.x = 0
+#                prevTwist.twist.angular.y = 0
+#                prevTwist.twist.angular.z = 0
+#                pub.publish(prevTwist)
+#            for i in range(5):
+#                prevTwist.twist.linear.x = -0.1
+#                prevTwist.twist.linear.y = 0
+#                prevTwist.twist.linear.z = 0
+#                prevTwist.twist.angular.x = 0
+#                prevTwist.twist.angular.y = 0
+#                prevTwist.twist.angular.z = 0
+#                pub.publish(prevTwist)
+#            for i in range(5):
+#                prevTwist.twist.linear.x = 0
+#                prevTwist.twist.linear.y = -0.1
+#                prevTwist.twist.linear.z = 0
+#                prevTwist.twist.angular.x = 0
+#                prevTwist.twist.angular.y = 0
+#                prevTwist.twist.angular.z = 0
+#                pub.publish(prevTwist)
 
     except Exception as e:
         print e

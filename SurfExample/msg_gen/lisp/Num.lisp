@@ -1,7 +1,7 @@
 ; Auto-generated. Do not edit!
 
 
-(cl:in-package draw_circle-msg)
+(cl:in-package SurfExample-msg)
 
 
 ;//! \htmlinclude Num.msg.html
@@ -20,11 +20,11 @@
 (cl:defmethod cl:initialize-instance :after ((m <Num>) cl:&rest args)
   (cl:declare (cl:ignorable args))
   (cl:unless (cl:typep m 'Num)
-    (roslisp-msg-protocol:msg-deprecation-warning "using old message class name draw_circle-msg:<Num> is deprecated: use draw_circle-msg:Num instead.")))
+    (roslisp-msg-protocol:msg-deprecation-warning "using old message class name SurfExample-msg:<Num> is deprecated: use SurfExample-msg:Num instead.")))
 
 (cl:ensure-generic-function 'num-val :lambda-list '(m))
 (cl:defmethod num-val ((m <Num>))
-  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader draw_circle-msg:num-val is deprecated.  Use draw_circle-msg:num instead.")
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader SurfExample-msg:num-val is deprecated.  Use SurfExample-msg:num instead.")
   (num m))
 (cl:defmethod roslisp-msg-protocol:serialize ((msg <Num>) ostream)
   "Serializes a message object of type '<Num>"
@@ -55,10 +55,10 @@
 )
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql '<Num>)))
   "Returns string type for a message object of type '<Num>"
-  "draw_circle/Num")
+  "SurfExample/Num")
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql 'Num)))
   "Returns string type for a message object of type 'Num"
-  "draw_circle/Num")
+  "SurfExample/Num")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<Num>)))
   "Returns md5sum for a message object of type '<Num>"
   "57d3c40ec3ac3754af76a83e6e73127a")

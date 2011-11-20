@@ -32,10 +32,10 @@ CMAKE_COMMAND = /usr/bin/cmake
 RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/aghos7/ros/draw_circle
+CMAKE_SOURCE_DIR = /home/aghos7/ros/SurfExample
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/aghos7/ros/draw_circle
+CMAKE_BINARY_DIR = /home/aghos7/ros/SurfExample
 
 # Utility rule file for ROSBUILD_gensrv_lisp.
 
@@ -88,9 +88,9 @@ srv_gen/lisp/AddTwoInts.lisp: /opt/ros/diamondback/stacks/ros_comm/tools/topic_t
 srv_gen/lisp/AddTwoInts.lisp: /opt/ros/diamondback/stacks/common_msgs/geometry_msgs/msg_gen/generated
 srv_gen/lisp/AddTwoInts.lisp: /opt/ros/diamondback/stacks/common_msgs/sensor_msgs/msg_gen/generated
 srv_gen/lisp/AddTwoInts.lisp: /opt/ros/diamondback/stacks/common_msgs/sensor_msgs/srv_gen/generated
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/aghos7/ros/draw_circle/CMakeFiles $(CMAKE_PROGRESS_1)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/aghos7/ros/SurfExample/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating srv_gen/lisp/AddTwoInts.lisp, srv_gen/lisp/_package.lisp, srv_gen/lisp/_package_AddTwoInts.lisp"
-	/opt/ros/diamondback/stacks/ros_comm/clients/roslisp/scripts/genmsg_lisp.py /home/aghos7/ros/draw_circle/srv/AddTwoInts.srv
+	/opt/ros/diamondback/stacks/ros_comm/clients/roslisp/scripts/genmsg_lisp.py /home/aghos7/ros/SurfExample/srv/AddTwoInts.srv
 
 srv_gen/lisp/_package.lisp: srv_gen/lisp/AddTwoInts.lisp
 
@@ -112,6 +112,6 @@ CMakeFiles/ROSBUILD_gensrv_lisp.dir/clean:
 .PHONY : CMakeFiles/ROSBUILD_gensrv_lisp.dir/clean
 
 CMakeFiles/ROSBUILD_gensrv_lisp.dir/depend:
-	cd /home/aghos7/ros/draw_circle && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/aghos7/ros/draw_circle /home/aghos7/ros/draw_circle /home/aghos7/ros/draw_circle /home/aghos7/ros/draw_circle /home/aghos7/ros/draw_circle/CMakeFiles/ROSBUILD_gensrv_lisp.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/aghos7/ros/SurfExample && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/aghos7/ros/SurfExample /home/aghos7/ros/SurfExample /home/aghos7/ros/SurfExample /home/aghos7/ros/SurfExample /home/aghos7/ros/SurfExample/CMakeFiles/ROSBUILD_gensrv_lisp.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/ROSBUILD_gensrv_lisp.dir/depend
 

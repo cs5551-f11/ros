@@ -1,4 +1,4 @@
-# Install script for directory: /home/base/ros/brown-ros-pkg/experimental/ardrone_brown
+# Install script for directory: /home/aghos7/ros/brown-ros-pkg/experimental/ardrone_brown
 
 # Set the install prefix
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -38,7 +38,7 @@ ELSE(CMAKE_INSTALL_COMPONENT)
   SET(CMAKE_INSTALL_MANIFEST "install_manifest.txt")
 ENDIF(CMAKE_INSTALL_COMPONENT)
 
-FILE(WRITE "/home/base/ros/brown-ros-pkg/experimental/ardrone_brown/${CMAKE_INSTALL_MANIFEST}" "")
+FILE(WRITE "/home/aghos7/ros/brown-ros-pkg/experimental/ardrone_brown/${CMAKE_INSTALL_MANIFEST}" "")
 FOREACH(file ${CMAKE_INSTALL_MANIFEST_FILES})
-  FILE(APPEND "/home/base/ros/brown-ros-pkg/experimental/ardrone_brown/${CMAKE_INSTALL_MANIFEST}" "${file}\n")
+  FILE(APPEND "/home/aghos7/ros/brown-ros-pkg/experimental/ardrone_brown/${CMAKE_INSTALL_MANIFEST}" "${file}\n")
 ENDFOREACH(file)

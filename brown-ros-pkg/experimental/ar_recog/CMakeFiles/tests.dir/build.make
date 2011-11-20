@@ -32,10 +32,10 @@ CMAKE_COMMAND = /usr/bin/cmake
 RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/base/ros/brown-ros-pkg/experimental/ar_recog
+CMAKE_SOURCE_DIR = /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/base/ros/brown-ros-pkg/experimental/ar_recog
+CMAKE_BINARY_DIR = /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog
 
 # Utility rule file for tests.
 
@@ -54,6 +54,6 @@ CMakeFiles/tests.dir/clean:
 .PHONY : CMakeFiles/tests.dir/clean
 
 CMakeFiles/tests.dir/depend:
-	cd /home/base/ros/brown-ros-pkg/experimental/ar_recog && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/base/ros/brown-ros-pkg/experimental/ar_recog /home/base/ros/brown-ros-pkg/experimental/ar_recog /home/base/ros/brown-ros-pkg/experimental/ar_recog /home/base/ros/brown-ros-pkg/experimental/ar_recog /home/base/ros/brown-ros-pkg/experimental/ar_recog/CMakeFiles/tests.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/CMakeFiles/tests.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/tests.dir/depend
 

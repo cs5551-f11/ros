@@ -1,12 +1,12 @@
 FILE(REMOVE_RECURSE
-  "src/draw_circle/msg"
-  "src/draw_circle/srv"
+  "src/SurfExample/msg"
+  "src/SurfExample/srv"
   "msg_gen"
   "srv_gen"
   "msg_gen"
   "srv_gen"
   "CMakeFiles/ROSBUILD_gensrv_cpp"
-  "srv_gen/cpp/include/draw_circle/AddTwoInts.h"
+  "srv_gen/cpp/include/SurfExample/AddTwoInts.h"
 )
 
 # Per-language clean rules from dependency scanning.

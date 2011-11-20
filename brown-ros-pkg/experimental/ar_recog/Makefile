@@ -36,10 +36,10 @@ CMAKE_COMMAND = /usr/bin/cmake
 RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/base/ros/brown-ros-pkg/experimental/ar_recog
+CMAKE_SOURCE_DIR = /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/base/ros/brown-ros-pkg/experimental/ar_recog
+CMAKE_BINARY_DIR = /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -66,9 +66,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/base/ros/brown-ros-pkg/experimental/ar_recog/CMakeFiles /home/base/ros/brown-ros-pkg/experimental/ar_recog/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/CMakeFiles /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/base/ros/brown-ros-pkg/experimental/ar_recog/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/CMakeFiles 0
 .PHONY : all
 
 # The main clean target

@@ -32,15 +32,15 @@ CMAKE_COMMAND = /usr/bin/cmake
 RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/aghos7/ros/draw_circle
+CMAKE_SOURCE_DIR = /home/aghos7/ros/SurfExample
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/aghos7/ros/draw_circle
+CMAKE_BINARY_DIR = /home/aghos7/ros/SurfExample
 
 # Utility rule file for test-results.
 
 CMakeFiles/test-results:
-	/opt/ros/diamondback/ros/tools/rosunit/scripts/summarize_results.py --nodeps draw_circle
+	/opt/ros/diamondback/ros/tools/rosunit/scripts/summarize_results.py --nodeps SurfExample
 
 test-results: CMakeFiles/test-results
 test-results: CMakeFiles/test-results.dir/build.make
@@ -55,6 +55,6 @@ CMakeFiles/test-results.dir/clean:
 .PHONY : CMakeFiles/test-results.dir/clean
 
 CMakeFiles/test-results.dir/depend:
-	cd /home/aghos7/ros/draw_circle && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/aghos7/ros/draw_circle /home/aghos7/ros/draw_circle /home/aghos7/ros/draw_circle /home/aghos7/ros/draw_circle /home/aghos7/ros/draw_circle/CMakeFiles/test-results.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/aghos7/ros/SurfExample && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/aghos7/ros/SurfExample /home/aghos7/ros/SurfExample /home/aghos7/ros/SurfExample /home/aghos7/ros/SurfExample /home/aghos7/ros/SurfExample/CMakeFiles/test-results.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/test-results.dir/depend
 

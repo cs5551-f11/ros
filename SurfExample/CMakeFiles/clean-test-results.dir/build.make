@@ -32,15 +32,15 @@ CMAKE_COMMAND = /usr/bin/cmake
 RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/aghos7/ros/draw_circle
+CMAKE_SOURCE_DIR = /home/aghos7/ros/SurfExample
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/aghos7/ros/draw_circle
+CMAKE_BINARY_DIR = /home/aghos7/ros/SurfExample
 
 # Utility rule file for clean-test-results.
 
 CMakeFiles/clean-test-results:
-	if ! rm -rf /home/aghos7/.ros/test_results/draw_circle; then echo WARNING:\ failed\ to\ remove\ test-results\ directory ; fi
+	if ! rm -rf /home/aghos7/.ros/test_results/SurfExample; then echo WARNING:\ failed\ to\ remove\ test-results\ directory ; fi
 
 clean-test-results: CMakeFiles/clean-test-results
 clean-test-results: CMakeFiles/clean-test-results.dir/build.make
@@ -55,6 +55,6 @@ CMakeFiles/clean-test-results.dir/clean:
 .PHONY : CMakeFiles/clean-test-results.dir/clean
 
 CMakeFiles/clean-test-results.dir/depend:
-	cd /home/aghos7/ros/draw_circle && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/aghos7/ros/draw_circle /home/aghos7/ros/draw_circle /home/aghos7/ros/draw_circle /home/aghos7/ros/draw_circle /home/aghos7/ros/draw_circle/CMakeFiles/clean-test-results.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/aghos7/ros/SurfExample && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/aghos7/ros/SurfExample /home/aghos7/ros/SurfExample /home/aghos7/ros/SurfExample /home/aghos7/ros/SurfExample /home/aghos7/ros/SurfExample/CMakeFiles/clean-test-results.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/clean-test-results.dir/depend
 

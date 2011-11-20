@@ -36,10 +36,10 @@ CMAKE_COMMAND = /usr/bin/cmake
 RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/aghos7/ros/draw_circle
+CMAKE_SOURCE_DIR = /home/aghos7/ros/SurfExample
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/aghos7/ros/draw_circle
+CMAKE_BINARY_DIR = /home/aghos7/ros/SurfExample
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -66,9 +66,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aghos7/ros/draw_circle/CMakeFiles /home/aghos7/ros/draw_circle/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aghos7/ros/SurfExample/CMakeFiles /home/aghos7/ros/SurfExample/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aghos7/ros/draw_circle/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aghos7/ros/SurfExample/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -187,19 +187,6 @@ clean-test-results/fast:
 .PHONY : clean-test-results/fast
 
 #=============================================================================
-# Target rules for targets named drawer
-
-# Build rule for target.
-drawer: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 drawer
-.PHONY : drawer
-
-# fast build rule for target.
-drawer/fast:
-	$(MAKE) -f CMakeFiles/drawer.dir/build.make CMakeFiles/drawer.dir/build
-.PHONY : drawer/fast
-
-#=============================================================================
 # Target rules for targets named rosbuild_precompile
 
 # Build rule for target.
@@ -291,6 +278,19 @@ rospack_gensrv_all/fast:
 .PHONY : rospack_gensrv_all/fast
 
 #=============================================================================
+# Target rules for targets named surf1
+
+# Build rule for target.
+surf1: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 surf1
+.PHONY : surf1
+
+# fast build rule for target.
+surf1/fast:
+	$(MAKE) -f CMakeFiles/surf1.dir/build.make CMakeFiles/surf1.dir/build
+.PHONY : surf1/fast
+
+#=============================================================================
 # Target rules for targets named test
 
 # Build rule for target.
@@ -357,17 +357,17 @@ tests/fast:
 
 # target to build an object file
 src/draw_circle.o:
-	$(MAKE) -f CMakeFiles/drawer.dir/build.make CMakeFiles/drawer.dir/src/draw_circle.o
+	$(MAKE) -f CMakeFiles/surf1.dir/build.make CMakeFiles/surf1.dir/src/draw_circle.o
 .PHONY : src/draw_circle.o
 
 # target to preprocess a source file
 src/draw_circle.i:
-	$(MAKE) -f CMakeFiles/drawer.dir/build.make CMakeFiles/drawer.dir/src/draw_circle.i
+	$(MAKE) -f CMakeFiles/surf1.dir/build.make CMakeFiles/surf1.dir/src/draw_circle.i
 .PHONY : src/draw_circle.i
 
 # target to generate assembly for a file
 src/draw_circle.s:
-	$(MAKE) -f CMakeFiles/drawer.dir/build.make CMakeFiles/drawer.dir/src/draw_circle.s
+	$(MAKE) -f CMakeFiles/surf1.dir/build.make CMakeFiles/surf1.dir/src/draw_circle.s
 .PHONY : src/draw_circle.s
 
 # Help Target
@@ -383,7 +383,6 @@ help:
 	@echo "... ROSBUILD_gensrv_lisp"
 	@echo "... ROSBUILD_gensrv_py"
 	@echo "... clean-test-results"
-	@echo "... drawer"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... rosbuild_precompile"
@@ -393,6 +392,7 @@ help:
 	@echo "... rospack_genmsg_libexe"
 	@echo "... rospack_gensrv"
 	@echo "... rospack_gensrv_all"
+	@echo "... surf1"
 	@echo "... test"
 	@echo "... test-future"
 	@echo "... test-results"

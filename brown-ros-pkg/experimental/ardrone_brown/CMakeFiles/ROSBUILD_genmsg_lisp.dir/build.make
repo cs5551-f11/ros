@@ -32,10 +32,10 @@ CMAKE_COMMAND = /usr/bin/cmake
 RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/base/ros/brown-ros-pkg/experimental/ardrone_brown
+CMAKE_SOURCE_DIR = /home/aghos7/ros/brown-ros-pkg/experimental/ardrone_brown
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/base/ros/brown-ros-pkg/experimental/ardrone_brown
+CMAKE_BINARY_DIR = /home/aghos7/ros/brown-ros-pkg/experimental/ardrone_brown
 
 # Utility rule file for ROSBUILD_genmsg_lisp.
 
@@ -89,9 +89,9 @@ msg_gen/lisp/Navdata.lisp: /opt/ros/diamondback/stacks/common_msgs/geometry_msgs
 msg_gen/lisp/Navdata.lisp: /opt/ros/diamondback/stacks/common_msgs/sensor_msgs/msg_gen/generated
 msg_gen/lisp/Navdata.lisp: /opt/ros/diamondback/stacks/common_msgs/sensor_msgs/srv_gen/generated
 msg_gen/lisp/Navdata.lisp: /opt/ros/diamondback/stacks/ros_comm/messages/std_srvs/srv_gen/generated
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/base/ros/brown-ros-pkg/experimental/ardrone_brown/CMakeFiles $(CMAKE_PROGRESS_1)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/aghos7/ros/brown-ros-pkg/experimental/ardrone_brown/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating msg_gen/lisp/Navdata.lisp, msg_gen/lisp/_package.lisp, msg_gen/lisp/_package_Navdata.lisp"
-	/opt/ros/diamondback/stacks/ros_comm/clients/roslisp/scripts/genmsg_lisp.py /home/base/ros/brown-ros-pkg/experimental/ardrone_brown/msg/Navdata.msg
+	/opt/ros/diamondback/stacks/ros_comm/clients/roslisp/scripts/genmsg_lisp.py /home/aghos7/ros/brown-ros-pkg/experimental/ardrone_brown/msg/Navdata.msg
 
 msg_gen/lisp/_package.lisp: msg_gen/lisp/Navdata.lisp
 
@@ -113,6 +113,6 @@ CMakeFiles/ROSBUILD_genmsg_lisp.dir/clean:
 .PHONY : CMakeFiles/ROSBUILD_genmsg_lisp.dir/clean
 
 CMakeFiles/ROSBUILD_genmsg_lisp.dir/depend:
-	cd /home/base/ros/brown-ros-pkg/experimental/ardrone_brown && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/base/ros/brown-ros-pkg/experimental/ardrone_brown /home/base/ros/brown-ros-pkg/experimental/ardrone_brown /home/base/ros/brown-ros-pkg/experimental/ardrone_brown /home/base/ros/brown-ros-pkg/experimental/ardrone_brown /home/base/ros/brown-ros-pkg/experimental/ardrone_brown/CMakeFiles/ROSBUILD_genmsg_lisp.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/aghos7/ros/brown-ros-pkg/experimental/ardrone_brown && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/aghos7/ros/brown-ros-pkg/experimental/ardrone_brown /home/aghos7/ros/brown-ros-pkg/experimental/ardrone_brown /home/aghos7/ros/brown-ros-pkg/experimental/ardrone_brown /home/aghos7/ros/brown-ros-pkg/experimental/ardrone_brown /home/aghos7/ros/brown-ros-pkg/experimental/ardrone_brown/CMakeFiles/ROSBUILD_genmsg_lisp.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/ROSBUILD_genmsg_lisp.dir/depend
 

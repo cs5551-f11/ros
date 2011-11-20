@@ -1,7 +1,7 @@
 ; Auto-generated. Do not edit!
 
 
-(cl:in-package draw_circle-srv)
+(cl:in-package SurfExample-srv)
 
 
 ;//! \htmlinclude AddTwoInts-request.msg.html
@@ -25,16 +25,16 @@
 (cl:defmethod cl:initialize-instance :after ((m <AddTwoInts-request>) cl:&rest args)
   (cl:declare (cl:ignorable args))
   (cl:unless (cl:typep m 'AddTwoInts-request)
-    (roslisp-msg-protocol:msg-deprecation-warning "using old message class name draw_circle-srv:<AddTwoInts-request> is deprecated: use draw_circle-srv:AddTwoInts-request instead.")))
+    (roslisp-msg-protocol:msg-deprecation-warning "using old message class name SurfExample-srv:<AddTwoInts-request> is deprecated: use SurfExample-srv:AddTwoInts-request instead.")))
 
 (cl:ensure-generic-function 'a-val :lambda-list '(m))
 (cl:defmethod a-val ((m <AddTwoInts-request>))
-  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader draw_circle-srv:a-val is deprecated.  Use draw_circle-srv:a instead.")
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader SurfExample-srv:a-val is deprecated.  Use SurfExample-srv:a instead.")
   (a m))
 
 (cl:ensure-generic-function 'b-val :lambda-list '(m))
 (cl:defmethod b-val ((m <AddTwoInts-request>))
-  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader draw_circle-srv:b-val is deprecated.  Use draw_circle-srv:b instead.")
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader SurfExample-srv:b-val is deprecated.  Use SurfExample-srv:b instead.")
   (b m))
 (cl:defmethod roslisp-msg-protocol:serialize ((msg <AddTwoInts-request>) ostream)
   "Serializes a message object of type '<AddTwoInts-request>"
@@ -85,10 +85,10 @@
 )
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql '<AddTwoInts-request>)))
   "Returns string type for a service object of type '<AddTwoInts-request>"
-  "draw_circle/AddTwoIntsRequest")
+  "SurfExample/AddTwoIntsRequest")
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql 'AddTwoInts-request)))
   "Returns string type for a service object of type 'AddTwoInts-request"
-  "draw_circle/AddTwoIntsRequest")
+  "SurfExample/AddTwoIntsRequest")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<AddTwoInts-request>)))
   "Returns md5sum for a message object of type '<AddTwoInts-request>"
   "6a2e34150c00229791cc89ff309fff21")
@@ -128,11 +128,11 @@
 (cl:defmethod cl:initialize-instance :after ((m <AddTwoInts-response>) cl:&rest args)
   (cl:declare (cl:ignorable args))
   (cl:unless (cl:typep m 'AddTwoInts-response)
-    (roslisp-msg-protocol:msg-deprecation-warning "using old message class name draw_circle-srv:<AddTwoInts-response> is deprecated: use draw_circle-srv:AddTwoInts-response instead.")))
+    (roslisp-msg-protocol:msg-deprecation-warning "using old message class name SurfExample-srv:<AddTwoInts-response> is deprecated: use SurfExample-srv:AddTwoInts-response instead.")))
 
 (cl:ensure-generic-function 'sum-val :lambda-list '(m))
 (cl:defmethod sum-val ((m <AddTwoInts-response>))
-  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader draw_circle-srv:sum-val is deprecated.  Use draw_circle-srv:sum instead.")
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader SurfExample-srv:sum-val is deprecated.  Use SurfExample-srv:sum instead.")
   (sum m))
 (cl:defmethod roslisp-msg-protocol:serialize ((msg <AddTwoInts-response>) ostream)
   "Serializes a message object of type '<AddTwoInts-response>"
@@ -163,10 +163,10 @@
 )
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql '<AddTwoInts-response>)))
   "Returns string type for a service object of type '<AddTwoInts-response>"
-  "draw_circle/AddTwoIntsResponse")
+  "SurfExample/AddTwoIntsResponse")
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql 'AddTwoInts-response)))
   "Returns string type for a service object of type 'AddTwoInts-response"
-  "draw_circle/AddTwoIntsResponse")
+  "SurfExample/AddTwoIntsResponse")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<AddTwoInts-response>)))
   "Returns md5sum for a message object of type '<AddTwoInts-response>"
   "6a2e34150c00229791cc89ff309fff21")
@@ -194,4 +194,4 @@
   'AddTwoInts-response)
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql 'AddTwoInts)))
   "Returns string type for a service object of type '<AddTwoInts>"
-  "draw_circle/AddTwoInts")
+  "SurfExample/AddTwoInts")

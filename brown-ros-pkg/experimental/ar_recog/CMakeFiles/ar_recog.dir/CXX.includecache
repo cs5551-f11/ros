@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/base/ros/brown-ros-pkg/experimental/ar_recog/src/ar_recog.cpp
+/home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/src/ar_recog.cpp
 ros/ros.h
 -
 image_transport/image_transport.h
@@ -30,7 +30,7 @@ AR/ar.h
 AR/video.h
 -
 object.h
-/home/base/ros/brown-ros-pkg/experimental/ar_recog/src/object.h
+/home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/src/object.h
 iostream
 -
 

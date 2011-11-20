@@ -15,10 +15,10 @@ IMAGE_WIDTH = 320#180 #320
 IMAGE_HEIGHT = 240#135 #240
 MAX_VELOCITY = 0.2 
 MAX_HISTORY = 5
-X_VEL_SCALAR = MAX_VELOCITY / IMAGE_WIDTH
+X_VEL_SCALAR = 0.001
 Y_VEL_SCALAR = MAX_VELOCITY / IMAGE_HEIGHT
 Z_VEL_SCALAR = 0
-X_DERIVATIVE_SCALAR = -0.01
+X_DERIVATIVE_SCALAR = 0
 Y_DERIVATIVE_SCALAR = -0.01
 CONST_SCALAR = [X_VEL_SCALAR, Y_VEL_SCALAR, Z_VEL_SCALAR]
 MIN_DISTANCE = 0
@@ -75,8 +75,9 @@ def CalcScaledVelocity( LineVector ):
 #            Velocity = max( Velocity, -MAX_VELOCITY )
         
     # Do not allow for vertical motion
+
     NewVel.z = 0
-#    print NewVel
+    #print NewVel
     return NewVel
 
 def CalcAngle( AngleVector ):
@@ -150,13 +151,15 @@ def ProcessImagePosition (data):
     # The exact function is unknown, so let's start with linear
     MyTwist.twist.linear = CalcScaledVelocity( NewTwist.twist.linear )
     #MyTwist.twist.angular = CalcScaledAngle( NewTwist.twist.angular )
-        
+    if ( math.isnan( MyTwist.twist.linear.x ) ):
+        print 'SHIT'
+        MyTwist.twist.linear.x = 0
     #print "Out: "
     #print MyTwist.twist.linear
     # Only publish the twist parameters to the drone
     pub.publish(MyTwist.twist)
-    if MyTwist.twist.linear.x != 0 or MyTwist.twist.linear.y != 0:
-        print MyTwist
+    #if MyTwist.twist.linear.x != 0 or MyTwist.twist.linear.y != 0:
+        #print MyTwist
         #rospy.loginfo(MyTwist)
 
     
@@ -170,9 +173,9 @@ def ProcessXlateImage( data ):
         # +Z_fwd_cam = +Z_base - points up
         # +Y_fwd_cam = +Y_base - points left
         # +X_fwd_cam = +X_base - points forward
-        #NewTwist.twist.linear.x = ( 180/2 ) - InputTags.tags[0].x
-        #NewTwist.twist.linear.y = ( 135/2 ) - InputTags.tags[0].y
-        #NewTwist.twist.linear.z = PrevDiameter - InputTags.tags[0].diameter
+        NewTwist.twist.linear.x = InputTags.tags[0].diameter - 40
+        NewTwist.twist.linear.z = 0 #( IMAGE_WIDTH/2 ) - InputTags.tags[0].y
+        NewTwist.twist.linear.y = 0 #( IMAGE_HEIGHT/2 ) - InputTags.tags[0].x
         #NewTwist.twist.angular.z = 0 # No rotation on fwd cam
         #PrevDiameter = InputTags.tags[0].diameter
         
@@ -181,10 +184,12 @@ def ProcessXlateImage( data ):
         # +Z_down_cam = -Z_base - points down, 
         # +Y_down_cam = +X_base - points forward
         # +X_down_cam = +Y_base - points left
-        NewTwist.twist.linear.x = InputTags.tags[0].y - ( IMAGE_HEIGHT/2 )
-        NewTwist.twist.linear.y = InputTags.tags[0].x - ( IMAGE_WIDTH/2 )
-        NewTwist.twist.linear.z = 0 # No depth for down cam
-        NewTwist.twist.angular.z = InputTags.tags[0].zRot
+        #NewTwist.twist.linear.x = InputTags.tags[0].y - ( IMAGE_HEIGHT/2 )
+        #NewTwist.twist.linear.y = InputTags.tags[0].x - ( IMAGE_WIDTH/2 )
+        #NewTwist.twist.linear.x = InputTags.tags[0].y - ( 160/2 )
+        #NewTwist.twist.linear.y = InputTags.tags[0].x - ( 120/2 )
+        #NewTwist.twist.linear.z = 0 # No depth for down cam
+        #NewTwist.twist.angular.z = InputTags.tags[0].zRot
         
         #rospy.Publisher("image_pos", NewTwist )
         ProcessImagePosition( NewTwist )
@@ -197,21 +202,21 @@ def ProcessXlateImage( data ):
 
     else:
         # Extrapolate history
-        try:
-            NewTwist.twist = PrevVector.pop(0)
+#        try:
+#            NewTwist.twist = PrevVector.pop(0)
 #            print "Use History %d" % len(PrevVector)
-            # Save off some history
-        except IndexError, e:
-            # Ran out of history
+#            # Save off some history
+#        except IndexError, e:
+#            # Ran out of history
 #            print "No History"
-            NewTwist.twist.linear.x = 0
-            NewTwist.twist.linear.y = 0
-            NewTwist.twist.linear.z = 0
-            NewTwist.twist.angular.z = 0
-            PrevDiameter = 0            
+        NewTwist.twist.linear.x = 0
+        NewTwist.twist.linear.y = 0
+        NewTwist.twist.linear.z = 0
+        NewTwist.twist.angular.z = 0
         
-        #rospy.Publisher("image_pos", NewTwist )
-        ProcessImagePosition( NewTwist )
+        pub = rospy.Publisher("cmd_vel", Twist )
+        pub.publish( NewTwist.twist )
+        #ProcessImagePosition( NewTwist )
     
     
     

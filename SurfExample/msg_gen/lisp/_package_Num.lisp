@@ -1,4 +1,4 @@
-(cl:in-package draw_circle-msg)
+(cl:in-package SurfExample-msg)
 (cl:export '(NUM-VAL
           NUM
 ))

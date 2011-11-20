@@ -1,13 +1,13 @@
 FILE(REMOVE_RECURSE
-  "src/draw_circle/msg"
-  "src/draw_circle/srv"
+  "src/SurfExample/msg"
+  "src/SurfExample/srv"
   "msg_gen"
   "srv_gen"
   "msg_gen"
   "srv_gen"
   "CMakeFiles/ROSBUILD_genmsg_py"
-  "src/draw_circle/msg/__init__.py"
-  "src/draw_circle/msg/_Num.py"
+  "src/SurfExample/msg/__init__.py"
+  "src/SurfExample/msg/_Num.py"
 )
 
 # Per-language clean rules from dependency scanning.

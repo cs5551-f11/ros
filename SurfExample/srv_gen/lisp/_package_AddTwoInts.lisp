@@ -1,4 +1,4 @@
-(cl:in-package draw_circle-srv)
+(cl:in-package SurfExample-srv)
 (cl:export '(A-VAL
           A
           B-VAL

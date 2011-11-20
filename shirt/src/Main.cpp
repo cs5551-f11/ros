@@ -343,9 +343,9 @@ public:
     cvShowImage("Shirt", imageDisplay);
 
 	// Pause
-	cvWaitKey(100);
+	cvWaitKey(3);
 	// Close everything
-    cvDestroyWindow("Shirt");
+    //cvDestroyWindow("Shirt");
 	
 	// Free resources.
 	cvReleaseHaarClassifierCascade( &cascadeFace );

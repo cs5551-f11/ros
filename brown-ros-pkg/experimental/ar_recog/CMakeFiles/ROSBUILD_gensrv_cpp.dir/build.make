@@ -32,10 +32,10 @@ CMAKE_COMMAND = /usr/bin/cmake
 RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/base/ros/brown-ros-pkg/experimental/ar_recog
+CMAKE_SOURCE_DIR = /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/base/ros/brown-ros-pkg/experimental/ar_recog
+CMAKE_BINARY_DIR = /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog
 
 # Utility rule file for ROSBUILD_gensrv_cpp.
 
@@ -87,9 +87,9 @@ srv_gen/cpp/include/ar_recog/CalibrateDistance.h: /opt/ros/diamondback/stacks/ro
 srv_gen/cpp/include/ar_recog/CalibrateDistance.h: /opt/ros/diamondback/stacks/common_msgs/geometry_msgs/msg_gen/generated
 srv_gen/cpp/include/ar_recog/CalibrateDistance.h: /opt/ros/diamondback/stacks/common_msgs/sensor_msgs/msg_gen/generated
 srv_gen/cpp/include/ar_recog/CalibrateDistance.h: /opt/ros/diamondback/stacks/common_msgs/sensor_msgs/srv_gen/generated
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/base/ros/brown-ros-pkg/experimental/ar_recog/CMakeFiles $(CMAKE_PROGRESS_1)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating srv_gen/cpp/include/ar_recog/CalibrateDistance.h"
-	/opt/ros/diamondback/stacks/ros_comm/clients/cpp/roscpp/scripts/gensrv_cpp.py /home/base/ros/brown-ros-pkg/experimental/ar_recog/srv/CalibrateDistance.srv
+	/opt/ros/diamondback/stacks/ros_comm/clients/cpp/roscpp/scripts/gensrv_cpp.py /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/srv/CalibrateDistance.srv
 
 ROSBUILD_gensrv_cpp: CMakeFiles/ROSBUILD_gensrv_cpp
 ROSBUILD_gensrv_cpp: srv_gen/cpp/include/ar_recog/CalibrateDistance.h
@@ -105,6 +105,6 @@ CMakeFiles/ROSBUILD_gensrv_cpp.dir/clean:
 .PHONY : CMakeFiles/ROSBUILD_gensrv_cpp.dir/clean
 
 CMakeFiles/ROSBUILD_gensrv_cpp.dir/depend:
-	cd /home/base/ros/brown-ros-pkg/experimental/ar_recog && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/base/ros/brown-ros-pkg/experimental/ar_recog /home/base/ros/brown-ros-pkg/experimental/ar_recog /home/base/ros/brown-ros-pkg/experimental/ar_recog /home/base/ros/brown-ros-pkg/experimental/ar_recog /home/base/ros/brown-ros-pkg/experimental/ar_recog/CMakeFiles/ROSBUILD_gensrv_cpp.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/CMakeFiles/ROSBUILD_gensrv_cpp.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/ROSBUILD_gensrv_cpp.dir/depend
 

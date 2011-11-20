@@ -1,4 +1,4 @@
-(cl:defpackage draw_circle-msg
+(cl:defpackage SurfExample-msg
   (:use )
   (:export
    "<NUM>"

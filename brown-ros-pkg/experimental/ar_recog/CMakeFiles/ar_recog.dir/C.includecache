@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/base/ros/brown-ros-pkg/experimental/ar_recog/src/ARToolKit/examples/loadMultiple/object.c
+/home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/src/ARToolKit/examples/loadMultiple/object.c
 stdio.h
 -
 stdlib.h
@@ -16,9 +16,9 @@ string.h
 AR/ar.h
 -
 object.h
-/home/base/ros/brown-ros-pkg/experimental/ar_recog/src/ARToolKit/examples/loadMultiple/object.h
+/home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/src/ARToolKit/examples/loadMultiple/object.h
 
-/home/base/ros/brown-ros-pkg/experimental/ar_recog/src/ARToolKit/examples/loadMultiple/object.h
+/home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/src/ARToolKit/examples/loadMultiple/object.h
 
 src/ARToolKit/include/AR/ar.h
 stdio.h

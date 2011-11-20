@@ -1,6 +1,6 @@
 FILE(REMOVE_RECURSE
-  "src/draw_circle/msg"
-  "src/draw_circle/srv"
+  "src/SurfExample/msg"
+  "src/SurfExample/srv"
   "msg_gen"
   "srv_gen"
   "msg_gen"

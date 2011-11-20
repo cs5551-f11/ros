@@ -32,10 +32,10 @@ CMAKE_COMMAND = /usr/bin/cmake
 RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/base/ros/brown-ros-pkg/experimental/ar_recog
+CMAKE_SOURCE_DIR = /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/base/ros/brown-ros-pkg/experimental/ar_recog
+CMAKE_BINARY_DIR = /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog
 
 # Include any dependencies generated for this target.
 include CMakeFiles/ar_recog.dir/depend.make
@@ -90,17 +90,17 @@ CMakeFiles/ar_recog.dir/src/ar_recog.o: /opt/ros/diamondback/stacks/ros_comm/too
 CMakeFiles/ar_recog.dir/src/ar_recog.o: /opt/ros/diamondback/stacks/common_msgs/geometry_msgs/msg_gen/generated
 CMakeFiles/ar_recog.dir/src/ar_recog.o: /opt/ros/diamondback/stacks/common_msgs/sensor_msgs/msg_gen/generated
 CMakeFiles/ar_recog.dir/src/ar_recog.o: /opt/ros/diamondback/stacks/common_msgs/sensor_msgs/srv_gen/generated
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/base/ros/brown-ros-pkg/experimental/ar_recog/CMakeFiles $(CMAKE_PROGRESS_1)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/ar_recog.dir/src/ar_recog.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -DTIXML_USE_STL -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -o CMakeFiles/ar_recog.dir/src/ar_recog.o -c /home/base/ros/brown-ros-pkg/experimental/ar_recog/src/ar_recog.cpp
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -DTIXML_USE_STL -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -o CMakeFiles/ar_recog.dir/src/ar_recog.o -c /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/src/ar_recog.cpp
 
 CMakeFiles/ar_recog.dir/src/ar_recog.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ar_recog.dir/src/ar_recog.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -DTIXML_USE_STL -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -E /home/base/ros/brown-ros-pkg/experimental/ar_recog/src/ar_recog.cpp > CMakeFiles/ar_recog.dir/src/ar_recog.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -DTIXML_USE_STL -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -E /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/src/ar_recog.cpp > CMakeFiles/ar_recog.dir/src/ar_recog.i
 
 CMakeFiles/ar_recog.dir/src/ar_recog.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ar_recog.dir/src/ar_recog.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -DTIXML_USE_STL -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -S /home/base/ros/brown-ros-pkg/experimental/ar_recog/src/ar_recog.cpp -o CMakeFiles/ar_recog.dir/src/ar_recog.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -DTIXML_USE_STL -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -S /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/src/ar_recog.cpp -o CMakeFiles/ar_recog.dir/src/ar_recog.s
 
 CMakeFiles/ar_recog.dir/src/ar_recog.o.requires:
 .PHONY : CMakeFiles/ar_recog.dir/src/ar_recog.o.requires
@@ -156,17 +156,17 @@ CMakeFiles/ar_recog.dir/src/ARToolKit/examples/loadMultiple/object.o: /opt/ros/d
 CMakeFiles/ar_recog.dir/src/ARToolKit/examples/loadMultiple/object.o: /opt/ros/diamondback/stacks/common_msgs/geometry_msgs/msg_gen/generated
 CMakeFiles/ar_recog.dir/src/ARToolKit/examples/loadMultiple/object.o: /opt/ros/diamondback/stacks/common_msgs/sensor_msgs/msg_gen/generated
 CMakeFiles/ar_recog.dir/src/ARToolKit/examples/loadMultiple/object.o: /opt/ros/diamondback/stacks/common_msgs/sensor_msgs/srv_gen/generated
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/base/ros/brown-ros-pkg/experimental/ar_recog/CMakeFiles $(CMAKE_PROGRESS_2)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/CMakeFiles $(CMAKE_PROGRESS_2)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building C object CMakeFiles/ar_recog.dir/src/ARToolKit/examples/loadMultiple/object.o"
-	/usr/bin/gcc  $(C_DEFINES) $(C_FLAGS) -DTIXML_USE_STL -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -o CMakeFiles/ar_recog.dir/src/ARToolKit/examples/loadMultiple/object.o   -c /home/base/ros/brown-ros-pkg/experimental/ar_recog/src/ARToolKit/examples/loadMultiple/object.c
+	/usr/bin/gcc  $(C_DEFINES) $(C_FLAGS) -DTIXML_USE_STL -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -o CMakeFiles/ar_recog.dir/src/ARToolKit/examples/loadMultiple/object.o   -c /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/src/ARToolKit/examples/loadMultiple/object.c
 
 CMakeFiles/ar_recog.dir/src/ARToolKit/examples/loadMultiple/object.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/ar_recog.dir/src/ARToolKit/examples/loadMultiple/object.i"
-	/usr/bin/gcc  $(C_DEFINES) $(C_FLAGS) -DTIXML_USE_STL -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -E /home/base/ros/brown-ros-pkg/experimental/ar_recog/src/ARToolKit/examples/loadMultiple/object.c > CMakeFiles/ar_recog.dir/src/ARToolKit/examples/loadMultiple/object.i
+	/usr/bin/gcc  $(C_DEFINES) $(C_FLAGS) -DTIXML_USE_STL -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -E /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/src/ARToolKit/examples/loadMultiple/object.c > CMakeFiles/ar_recog.dir/src/ARToolKit/examples/loadMultiple/object.i
 
 CMakeFiles/ar_recog.dir/src/ARToolKit/examples/loadMultiple/object.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/ar_recog.dir/src/ARToolKit/examples/loadMultiple/object.s"
-	/usr/bin/gcc  $(C_DEFINES) $(C_FLAGS) -DTIXML_USE_STL -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -S /home/base/ros/brown-ros-pkg/experimental/ar_recog/src/ARToolKit/examples/loadMultiple/object.c -o CMakeFiles/ar_recog.dir/src/ARToolKit/examples/loadMultiple/object.s
+	/usr/bin/gcc  $(C_DEFINES) $(C_FLAGS) -DTIXML_USE_STL -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -S /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/src/ARToolKit/examples/loadMultiple/object.c -o CMakeFiles/ar_recog.dir/src/ARToolKit/examples/loadMultiple/object.s
 
 CMakeFiles/ar_recog.dir/src/ARToolKit/examples/loadMultiple/object.o.requires:
 .PHONY : CMakeFiles/ar_recog.dir/src/ARToolKit/examples/loadMultiple/object.o.requires
@@ -179,7 +179,7 @@ CMakeFiles/ar_recog.dir/src/ARToolKit/examples/loadMultiple/object.o.provides.bu
 .PHONY : CMakeFiles/ar_recog.dir/src/ARToolKit/examples/loadMultiple/object.o.provides.build
 
 src/ARToolKit/examples/loadMultiple/object.c:
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/base/ros/brown-ros-pkg/experimental/ar_recog/CMakeFiles $(CMAKE_PROGRESS_3)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/CMakeFiles $(CMAKE_PROGRESS_3)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating src/ARToolKit/examples/loadMultiple/object.c"
 	./getAndBuildARToolkit.py
 
@@ -211,6 +211,6 @@ CMakeFiles/ar_recog.dir/clean:
 .PHONY : CMakeFiles/ar_recog.dir/clean
 
 CMakeFiles/ar_recog.dir/depend: src/ARToolKit/examples/loadMultiple/object.c
-	cd /home/base/ros/brown-ros-pkg/experimental/ar_recog && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/base/ros/brown-ros-pkg/experimental/ar_recog /home/base/ros/brown-ros-pkg/experimental/ar_recog /home/base/ros/brown-ros-pkg/experimental/ar_recog /home/base/ros/brown-ros-pkg/experimental/ar_recog /home/base/ros/brown-ros-pkg/experimental/ar_recog/CMakeFiles/ar_recog.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog /home/aghos7/ros/brown-ros-pkg/experimental/ar_recog/CMakeFiles/ar_recog.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/ar_recog.dir/depend
 

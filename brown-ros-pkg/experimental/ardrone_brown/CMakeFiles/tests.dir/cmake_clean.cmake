@@ -1,6 +1,6 @@
 FILE(REMOVE_RECURSE
-  "msg_gen"
   "src/ardrone_brown/msg"
+  "msg_gen"
   "msg_gen"
   "CMakeFiles/tests"
 )

@@ -106,8 +106,15 @@ C_RESULT update_teleop(void)
 	float up_down = cmd_vel.linear.z;
 	float turn = cmd_vel.angular.z;
 
-	ardrone_at_set_progress_cmd(1, left_right, front_back, up_down, turn);
-	return C_OK;
+    if( left_right == 0 && front_back == 0)
+    {
+	   ardrone_at_set_progress_cmd(0, 0, 0, 0, 0);
+    }    
+    else
+    {
+       ardrone_at_set_progress_cmd(1, left_right, front_back, up_down, turn);
+    }	
+    return C_OK;
 }
 
 C_RESULT close_teleop(void)

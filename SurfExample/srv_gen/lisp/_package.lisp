@@ -1,4 +1,4 @@
-(cl:defpackage draw_circle-srv
+(cl:defpackage SurfExample-srv
   (:use )
   (:export
    "ADDTWOINTS"

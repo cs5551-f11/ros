@@ -7,6 +7,10 @@ from geometry_msgs.msg import TwistStamped
 import sys, select, termios, tty
 import random
 
+SavedTwist = TwistStamped()
+SavedTwist.twist.linear.x = 160
+SavedTwist.twist.linear.y = 120
+
 msg = """
 Creating Fake Image position data and publishing to image_pos
 
@@ -14,14 +18,27 @@ CTRL+c to quit
 """
 
 move_bindings = {
-        68:('linear', 'y', 0.3), #left
-        67:('linear', 'y', -0.3), #right
-        65:('linear', 'x', 0.3), #forward
-        66:('linear', 'x', -0.3), #back
-        'w':('linear', 'z', 0.3),
-        's':('linear', 'z', -0.3),
-        'a':('angular', 'z', 1),
-        'd':('angular', 'z', -1),
+        68:('linear', 'y', 1), #left
+        67:('linear', 'y', -1), #right
+        65:('linear', 'x', 1), #forward
+        66:('linear', 'x', -1), #back
+#        'w':('linear', 'z', 0.3),
+#        's':('linear', 'z', -0.3),
+#        'a':('angular', 'z', 1),
+#        'd':('angular', 'z', -1),
+        'w':('linear', 'x', 10), #forward
+        '9':('linear', 'x', 9), #forward
+        '8':('linear', 'x', 8), #forward
+        '7':('linear', 'x', 7), #forward
+        '6':('linear', 'x', 6), #forward
+        '5':('linear', 'x', 5), #forward
+        '4':('linear', 'x', 4), #forward
+        '3':('linear', 'x', 3), #forward
+        '2':('linear', 'x', 2), #forward
+        '1':('linear', 'x', 1), #forward
+        's':('linear', 'x', -10),
+        'a':('linear', 'y', 10), #left
+        'd':('linear', 'y', -10),
         'm':('linear', 'x', 0),
         'n':('linear', 'y', 0),
            }
@@ -59,11 +76,11 @@ if __name__=="__main__":
             twist.header.frame_id = "%c" % key
             twist.header.seq += 1
             if twist.twist.linear.x != 0:
-                twist.twist.linear.y = twist.twist.linear.x
+                SavedTwist.twist.linear.x += twist.twist.linear.x
             elif twist.twist.linear.y != 0:
-                twist.twist.linear.x = twist.twist.linear.y
-            print prevTwist
-            pub.publish(twist)
+                SavedTwist.twist.linear.y += twist.twist.linear.y
+            print SavedTwist
+            pub.publish(SavedTwist)
 #            pub.publish(twist.twist)
 
             

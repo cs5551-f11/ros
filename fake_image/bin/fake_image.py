@@ -10,6 +10,7 @@ import random
 SavedTwist = TwistStamped()
 SavedTwist.twist.linear.x = 160
 SavedTwist.twist.linear.y = 120
+PositiveValue = True
 
 msg = """
 Creating Fake Image position data and publishing to image_pos
@@ -51,6 +52,7 @@ def getKey():
     return key
 
 if __name__=="__main__":
+    global PositiveValue
     settings = termios.tcgetattr(sys.stdin)
 
     print msg
@@ -71,14 +73,24 @@ if __name__=="__main__":
                 (lin_ang, xyz, speed) = move_bindings[key]
                 setattr(getattr(twist.twist, lin_ang), xyz, speed)
             else:
+                if (key == '-'):
+                    PositiveValue = not PositiveValue
+                    print "Positive Sign = ",
+                    print PositiveValue
                 if (key == '\x03'):
                     break
             twist.header.frame_id = "%c" % key
             twist.header.seq += 1
             if twist.twist.linear.x != 0:
-                SavedTwist.twist.linear.x += twist.twist.linear.x
+                if PositiveValue:
+                    SavedTwist.twist.linear.x += twist.twist.linear.x
+                else:
+                    SavedTwist.twist.linear.x -= twist.twist.linear.x
             elif twist.twist.linear.y != 0:
-                SavedTwist.twist.linear.y += twist.twist.linear.y
+                if PositiveValue:
+                    SavedTwist.twist.linear.y += twist.twist.linear.y
+                else:
+                    SavedTwist.twist.linear.y -= twist.twist.linear.y
             print SavedTwist
             pub.publish(SavedTwist)
 #            pub.publish(twist.twist)

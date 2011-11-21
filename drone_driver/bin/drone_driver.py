@@ -10,16 +10,20 @@ import std_srvs.srv
 import sys, select, termios, math
 import pid 
 
+
 # Constants
-IMAGE_WIDTH = 320#180 #320
-IMAGE_HEIGHT = 240#135 #240
-MAX_VELOCITY = 0.2 
+IMAGE_WIDTH = 176 #320
+IMAGE_HEIGHT = 144 #240
+MAX_VELOCITY = 0.1 
 MAX_HISTORY = 5
-X_VEL_SCALAR = 0.002
-Y_VEL_SCALAR = 0.002
+X_VEL_SCALAR = 0.0005 
+Y_VEL_SCALAR = 0.000625
 Z_VEL_SCALAR = 0
-X_DERIVATIVE_SCALAR = 0.004
-Y_DERIVATIVE_SCALAR = 0.004
+X_DERIVATIVE_SCALAR = 0.0005
+Y_DERIVATIVE_SCALAR = 0.000625
+X_INT_SCALAR = 0.0001
+Y_INT_SCALAR = 0.0001
+
 CONST_SCALAR = [X_VEL_SCALAR, Y_VEL_SCALAR, Z_VEL_SCALAR]
 MIN_DISTANCE = 0
 MAX_SCALAR = 0.1
@@ -28,10 +32,13 @@ DIRECTION_LETTERS = ['x','y','z']
 # Global Variables
 MyTwist = TwistStamped()
 PrevDiameter = 0
-PrevVector = []
-p_x=pid.PID(X_VEL_SCALAR,0,X_DERIVATIVE_SCALAR)
-p_y=pid.PID(Y_VEL_SCALAR,0,Y_DERIVATIVE_SCALAR)
-FwdCam = True
+PrevVector = 5
+p_x=pid.PID(X_VEL_SCALAR, X_INT_SCALAR, X_DERIVATIVE_SCALAR)
+p_y=pid.PID(Y_VEL_SCALAR, Y_INT_SCALAR, Y_DERIVATIVE_SCALAR)
+FwdCam = False
+PrevCam = False
+CurCam = False
+prev_key = 'foobar'
     
 def CalcScaledVelocity( LineVector ):
     global p_x
@@ -74,6 +81,7 @@ def CalcScaledAngle( AngleVector ):
 def ProcessImagePosition (data):
     global MyTwist
     global FwdCam
+    global prev_key
     
     pub = rospy.Publisher('cmd_vel', Twist)
     land_pub = rospy.Publisher('/ardrone/land', std_msgs.msg.Empty)
@@ -102,14 +110,16 @@ def ProcessImagePosition (data):
         # TODO Implement hover
         rospy.loginfo(rospy.get_name()+"I heard %s",NewTwist.header.frame_id)
         takeoff_pub.publish(Empty())
-    if key == 'x':
+    if key == 'switch' and prev_key != key:
         try:
-            foo = toggleCam()
-            FwdCam = not FwdCam
-            print foo
+            toggleCam()
+            print NewTwist.header.seq
+#            FwdCam = not FwdCam
+#            print FwdCam
         except rospy.ServiceException, e:
             print "Service call failed: %s"%e
 
+    prev_key = key
     
     # This input image twist give the delta position and pose for the tag relative 
     # to the center of the of the image frame.
@@ -126,23 +136,31 @@ def ProcessImagePosition (data):
     if ( math.isnan( MyTwist.twist.linear.x ) ):
         print 'NaN',
         print MyTwist.twist.linear.x
+        
         MyTwist.twist.linear.x = 0
 
     # Only publish the twist parameters to the drone
     pub.publish(MyTwist.twist)
-    #if MyTwist.twist.linear.x != 0 or MyTwist.twist.linear.y != 0:
-        #print MyTwist
-        #rospy.loginfo(MyTwist)
+#    if MyTwist.twist.linear.x != 0 or MyTwist.twist.linear.y != 0:
+#        print MyTwist
+#        rospy.loginfo(MyTwist)
 
     
 def ProcessXlateImage( data ):
     global PrevDiameter
     global FwdCam
-    
+    global p_x
+    global p_y
+    global prev_key
+        
     InputTags = data
     NewTwist = TwistStamped()
     
-    if InputTags.tag_count:
+    if InputTags.tag_count > 0:
+        if InputTags.tags[0].id == 0:
+            NewTwist.header.frame_id = 'switch'
+        else:
+            NewTwist.header.frame_id = 'move'
         if FwdCam:
             # Forward Camera
             # +Z_fwd_cam = +Z_base - points up
@@ -168,9 +186,9 @@ def ProcessXlateImage( data ):
         ProcessImagePosition( NewTwist )
 
         # Keep some history for when the tag disappears
-        while len(PrevVector) >= MAX_HISTORY:
-            PrevVector.pop(0)
-        PrevVector.append(NewTwist.twist)
+#        while len(PrevVector) >= MAX_HISTORY:
+#            PrevVector.pop(0)
+#        PrevVector.append(NewTwist.twist)
         
 #        print "Found Tag %d" % len(PrevVector)
 
@@ -183,11 +201,14 @@ def ProcessXlateImage( data ):
 #        except IndexError, e:
 #            # Ran out of history
 #            print "No History"
+        NewTwist.header.frame_id = 'lost'
         NewTwist.twist.linear.x = 0
         NewTwist.twist.linear.y = 0
         NewTwist.twist.linear.z = 0
         NewTwist.twist.angular.z = 0
-        
+        p_x.better_init()
+        p_y.better_init()
+        prev_key = 'foobar'
         pub = rospy.Publisher("cmd_vel", Twist )
         pub.publish( NewTwist.twist )
         #ProcessImagePosition( NewTwist )

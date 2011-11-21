@@ -12,13 +12,12 @@
 #
 #
 
-
 class PID:
 	"""
 	Discrete PID control
 	"""
 
-	def __init__(self, P=2.0, I=0.0, D=1.0, Derivator=0, Integrator=0, Integrator_max=500, Integrator_min=-500):
+	def __init__(self, P=2.0, I=0.0, D=1.0, Derivator=0, Integrator=0, Integrator_max=25, Integrator_min=-25):
 
 		self.Kp=P
 		self.Ki=I
@@ -30,6 +29,14 @@ class PID:
 
 		self.set_point=0.0
 		self.error=0.0
+		
+	def better_init(self):
+		self.Derivator=0
+		self.Integrator=0
+		self.Integrator_max=25
+		self.Integrator_min=-25
+		self.set_point=0.0
+		self.error=0.0	
 
 	def update(self,current_value):
 		"""
@@ -40,16 +47,19 @@ class PID:
 #		print "K_d",
 #		print self.Kd
 		self.error = self.set_point - current_value
-		print "Error",
-		print self.error
+		print "Error ",
+		print self.error,
 		self.P_value = self.Kp * self.error
-		print "P",
-		print self.P_value
-		self.D_value = self.Kd * ( self.error - self.Derivator)
-		print "Derivator",
-		print self.Derivator
-		print "D",
-		print self.D_value
+		print " P ",
+		print self.P_value,
+		if self.Derivator != 0:
+			self.D_value = self.Kd * ( self.error - self.Derivator)
+	#		print "Derivator",
+	#		print self.Derivator
+			print " D ",
+			print self.D_value,
+		else:
+			self.D_value = 0
 	
 		self.Derivator = self.error
 		
@@ -61,6 +71,8 @@ class PID:
 			self.Integrator = self.Integrator_min
 
 		self.I_value = self.Integrator * self.Ki
+		print " I ",
+		print self.I_value
 
 		PID = self.P_value + self.I_value + self.D_value
 

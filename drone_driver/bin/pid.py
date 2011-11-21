@@ -40,16 +40,16 @@ class PID:
 #		print "K_d",
 #		print self.Kd
 		self.error = self.set_point - current_value
-#		print "Error",
-#		print self.error
+		print "Error",
+		print self.error
 		self.P_value = self.Kp * self.error
-#		print "P",
-#		print self.P_value
+		print "P",
+		print self.P_value
 		self.D_value = self.Kd * ( self.error - self.Derivator)
-#		print "Derivator",
-#		print self.Derivator
-#		print "D",
-#		print self.D_value
+		print "Derivator",
+		print self.Derivator
+		print "D",
+		print self.D_value
 	
 		self.Derivator = self.error
 		

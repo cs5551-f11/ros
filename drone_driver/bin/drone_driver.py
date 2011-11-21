@@ -15,17 +15,15 @@ IMAGE_WIDTH = 320#180 #320
 IMAGE_HEIGHT = 240#135 #240
 MAX_VELOCITY = 0.2 
 MAX_HISTORY = 5
-X_VEL_SCALAR = 0.001
-Y_VEL_SCALAR = MAX_VELOCITY / IMAGE_HEIGHT
+X_VEL_SCALAR = 0.002
+Y_VEL_SCALAR = 0.002
 Z_VEL_SCALAR = 0
-X_DERIVATIVE_SCALAR = 0
-Y_DERIVATIVE_SCALAR = -0.01
+X_DERIVATIVE_SCALAR = 0.004
+Y_DERIVATIVE_SCALAR = 0.004
 CONST_SCALAR = [X_VEL_SCALAR, Y_VEL_SCALAR, Z_VEL_SCALAR]
 MIN_DISTANCE = 0
 MAX_SCALAR = 0.1
-
-
-DirectionLetters = ['x','y','z']
+DIRECTION_LETTERS = ['x','y','z']
 
 # Global Variables
 MyTwist = TwistStamped()
@@ -33,76 +31,50 @@ PrevDiameter = 0
 PrevVector = []
 p_x=pid.PID(X_VEL_SCALAR,0,X_DERIVATIVE_SCALAR)
 p_y=pid.PID(Y_VEL_SCALAR,0,Y_DERIVATIVE_SCALAR)
-    
-def CalcVelocity( LineVector ):
-    ReturnVelocity = [0,0,0]
-    for i in range(len(DirectionLetters)):
-        Distance = getattr(LineVector, DirectionLetters[i])
-        if math.fabs(Distance) <= MIN_DISTANCE:    
-            ReturnVelocity[i] = 0 
-        else:
-            # TODO Apply function to Distance
-            # Cap the Scalar to keep the speed under control
-            ReturnVelocity[i] = Distance
-    return ReturnVelocity
+FwdCam = True
     
 def CalcScaledVelocity( LineVector ):
     global p_x
     global p_y
     NewVel = Twist().linear
 #    VelocityVector = CalcVelocity( LineVector )
-    
-    Velocity = p_x.update(getattr(LineVector, DirectionLetters[0]))
+    print "X",
+    Velocity = p_x.update(getattr(LineVector, DIRECTION_LETTERS[0]))
     if Velocity > 0:
         Velocity = min( Velocity, MAX_VELOCITY )
     else:
         Velocity = max( Velocity, -MAX_VELOCITY )
-    setattr(NewVel, DirectionLetters[0], Velocity) 
+    setattr(NewVel, DIRECTION_LETTERS[0], Velocity) 
 
-    
-    Velocity = p_y.update(getattr(LineVector, DirectionLetters[1]))
+    print "Y",
+    Velocity = p_y.update(getattr(LineVector, DIRECTION_LETTERS[1]))
     if Velocity > 0:
         Velocity = min( Velocity, MAX_VELOCITY )
     else:
         Velocity = max( Velocity, -MAX_VELOCITY )
-    setattr(NewVel, DirectionLetters[1], Velocity )    
+    setattr(NewVel, DIRECTION_LETTERS[1], Velocity )    
 
-#    for i in range(len(DirectionLetters)):
-#        Velocity = CONST_SCALAR[i] * VelocityVector[i]
-#        if Velocity > 0:
-#            Velocity = min( Velocity, MAX_VELOCITY )
-#        else:
-#            Velocity = max( Velocity, -MAX_VELOCITY )
-        
     # Do not allow for vertical motion
-
     NewVel.z = 0
+    
     #print NewVel
     return NewVel
-
-def CalcAngle( AngleVector ):
-    # Only rotate about the Z-axis for downward camera
-    # NOTE: The +Z-axis is facing down from the downward camera
-    ReturnAngle = [0,0,0]
-    #for i in range(len(DirectionLetters)):
-    i = 2
-    Angle = getattr(AngleVector, DirectionLetters[i])
-    ReturnAngle[i] = -Angle/math.pi
-    return ReturnAngle
-    
+   
 def CalcScaledAngle( AngleVector ):
     # TODO Figure out how to compute angular motion
     NewTwist = Twist().angular
-    AngleVector = CalcAngle( AngleVector )
-    for i in range(len(DirectionLetters)):
+#    AngleVector = CalcAngle( AngleVector )
+    # TODO Make PID for angle
+    for i in range(len(DIRECTION_LETTERS)):
         # TODO See if any scaling needed
         Angle = AngleVector[i]
-        setattr(NewTwist, DirectionLetters[i], Angle)
+        setattr(NewTwist, DIRECTION_LETTERS[i], Angle)
     return NewTwist
     
 def ProcessImagePosition (data):
     global MyTwist
-
+    global FwdCam
+    
     pub = rospy.Publisher('cmd_vel', Twist)
     land_pub = rospy.Publisher('/ardrone/land', std_msgs.msg.Empty)
     reset_pub = rospy.Publisher('/ardrone/reset', std_msgs.msg.Empty)
@@ -133,6 +105,7 @@ def ProcessImagePosition (data):
     if key == 'x':
         try:
             foo = toggleCam()
+            FwdCam = not FwdCam
             print foo
         except rospy.ServiceException, e:
             print "Service call failed: %s"%e
@@ -148,14 +121,13 @@ def ProcessImagePosition (data):
     # will be increased.
     # If the tag is switching direction in the frame (oscillating) then reduce the
     # speed to hover over target
-    # The exact function is unknown, so let's start with linear
     MyTwist.twist.linear = CalcScaledVelocity( NewTwist.twist.linear )
     #MyTwist.twist.angular = CalcScaledAngle( NewTwist.twist.angular )
     if ( math.isnan( MyTwist.twist.linear.x ) ):
-        print 'SHIT'
+        print 'NaN',
+        print MyTwist.twist.linear.x
         MyTwist.twist.linear.x = 0
-    #print "Out: "
-    #print MyTwist.twist.linear
+
     # Only publish the twist parameters to the drone
     pub.publish(MyTwist.twist)
     #if MyTwist.twist.linear.x != 0 or MyTwist.twist.linear.y != 0:
@@ -165,35 +137,37 @@ def ProcessImagePosition (data):
     
 def ProcessXlateImage( data ):
     global PrevDiameter
+    global FwdCam
+    
     InputTags = data
     NewTwist = TwistStamped()
     
     if InputTags.tag_count:
-        # Forward Camera
-        # +Z_fwd_cam = +Z_base - points up
-        # +Y_fwd_cam = +Y_base - points left
-        # +X_fwd_cam = +X_base - points forward
-        NewTwist.twist.linear.x = InputTags.tags[0].diameter - 40
-        NewTwist.twist.linear.z = 0 #( IMAGE_WIDTH/2 ) - InputTags.tags[0].y
-        NewTwist.twist.linear.y = 0 #( IMAGE_HEIGHT/2 ) - InputTags.tags[0].x
-        #NewTwist.twist.angular.z = 0 # No rotation on fwd cam
-        #PrevDiameter = InputTags.tags[0].diameter
-        
-        # Downward Camera
-        # NOTE: the downward camera 
-        # +Z_down_cam = -Z_base - points down, 
-        # +Y_down_cam = +X_base - points forward
-        # +X_down_cam = +Y_base - points left
-        #NewTwist.twist.linear.x = InputTags.tags[0].y - ( IMAGE_HEIGHT/2 )
-        #NewTwist.twist.linear.y = InputTags.tags[0].x - ( IMAGE_WIDTH/2 )
-        #NewTwist.twist.linear.x = InputTags.tags[0].y - ( 160/2 )
-        #NewTwist.twist.linear.y = InputTags.tags[0].x - ( 120/2 )
-        #NewTwist.twist.linear.z = 0 # No depth for down cam
-        #NewTwist.twist.angular.z = InputTags.tags[0].zRot
+        if FwdCam:
+            # Forward Camera
+            # +Z_fwd_cam = +Z_base - points up
+            # +Y_fwd_cam = +Y_base - points left
+            # +X_fwd_cam = +X_base - points forward
+            NewTwist.twist.linear.x = InputTags.tags[0].diameter - 40
+            NewTwist.twist.linear.z = 0 #( IMAGE_WIDTH/2 ) - InputTags.tags[0].y
+            NewTwist.twist.linear.y = 0 #( IMAGE_HEIGHT/2 ) - InputTags.tags[0].x
+            #NewTwist.twist.angular.z = 0 # No rotation on fwd cam
+            #PrevDiameter = InputTags.tags[0].diameter
+        else:
+            # Downward Camera
+            # NOTE: the downward camera 
+            # +Z_down_cam = -Z_base - points down, 
+            # +Y_down_cam = +X_base - points forward
+            # +X_down_cam = +Y_base - points left
+            NewTwist.twist.linear.x = InputTags.tags[0].y - ( IMAGE_HEIGHT/2 )
+            NewTwist.twist.linear.y = InputTags.tags[0].x - ( IMAGE_WIDTH/2 )
+            NewTwist.twist.linear.z = 0 # No depth for down cam
+            #NewTwist.twist.angular.z = InputTags.tags[0].zRot
         
         #rospy.Publisher("image_pos", NewTwist )
         ProcessImagePosition( NewTwist )
-        
+
+        # Keep some history for when the tag disappears
         while len(PrevVector) >= MAX_HISTORY:
             PrevVector.pop(0)
         PrevVector.append(NewTwist.twist)
@@ -217,9 +191,6 @@ def ProcessXlateImage( data ):
         pub = rospy.Publisher("cmd_vel", Twist )
         pub.publish( NewTwist.twist )
         #ProcessImagePosition( NewTwist )
-    
-    
-    
     
 def DroneDriver():
     p_x.setPoint(0)

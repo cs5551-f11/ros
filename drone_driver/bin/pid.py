@@ -17,7 +17,7 @@ class PID:
 	Discrete PID control
 	"""
 
-	def __init__(self, P=2.0, I=0.0, D=1.0, Derivator=0, Integrator=0, Integrator_max=25, Integrator_min=-25):
+	def __init__(self, P=2.0, I=0.0, D=1.0, Error_min=10, Derivator=0, Integrator=0, Integrator_max=25, Integrator_min=-25):
 
 		self.Kp=P
 		self.Ki=I
@@ -26,15 +26,13 @@ class PID:
 		self.Integrator=Integrator
 		self.Integrator_max=Integrator_max
 		self.Integrator_min=Integrator_min
-
+		self.Error_min=Error_min
 		self.set_point=0.0
 		self.error=0.0
 		
 	def better_init(self):
 		self.Derivator=0
 		self.Integrator=0
-		self.Integrator_max=25
-		self.Integrator_min=-25
 		self.set_point=0.0
 		self.error=0.0	
 

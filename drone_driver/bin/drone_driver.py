@@ -7,34 +7,122 @@ from geometry_msgs.msg import TwistStamped
 from geometry_msgs.msg import Twist
 import std_msgs.msg
 import std_srvs.srv
-import sys, select, termios, math
-import pid 
+import math, logging, datetime
 
+now = datetime.datetime.now()
+logging.basicConfig()
+log = logging.getLogger("DroneDriver")
+hdlr = logging.FileHandler('driver%s.log' % now.strftime("%Y-%m-%d %H:%M"))
+log.setLevel(logging.DEBUG) #set verbosity to show all messages of severity >= DEBUG
+formatter = logging.Formatter('%(message)s')
+hdlr.setFormatter(formatter)
+log.addHandler(hdlr)
+log.info("Starting DroneDriver")
+
+class PID:
+    
+    def __init__(self, Key='none', Kp=0.1, Ki=0.0, Kd=0.05, PIDMax=1, ErrInit=0, ErrMin=10, DerInit=0, DerMin=1, IntInit=0, IntMax=25, IntMin=-25, Goal=0):
+        self.Key = Key
+        self.Kp = Kp
+        self.Ki = Ki
+        self.Kd = Kd
+        self.Der = DerInit
+        self.DerInit = DerInit
+        self.DerMin = DerMin 
+        self.Int = IntInit
+        self.IntInit = IntInit
+        self.IntMax = IntMax
+        self.IntMin = IntMin
+        self.ErrMin = ErrMin
+        self.Goal = Goal
+        self.Err = ErrInit
+        self.ErrInit = ErrInit
+        self.PIDMax = PIDMax
+        self.IsInit = True
+        
+    def ReInit(self):
+        self.Der = self.DerInit
+        self.Int = self.IntInit
+        self.Err = self.ErrInit
+        self.IsInit = True    
+        
+
+    def ComputePID(self,CurVal):
+        global log
+        self.Err = self.Goal - CurVal
+        
+        # check for "Dead Band" region where no controls are sent 
+        if math.fabs(self.Err) < self.ErrMin and self.Der < self.DerMin:
+            # Within the "Dead Band" region, so stop moving so not to induce error
+            self.P = 0
+            self.D = 0
+            self.I = 0
+        else:
+            ###################################################################
+            # Proportional
+            ###################################################################
+            self.P = self.Kp * self.Err
+            
+            ###################################################################
+            # Derivative
+            ###################################################################
+            # If IsInit that means this is first frame, so don't do anything with derivative   
+            if not self.IsInit:
+                self.D = self.Kd * ( self.Err - self.Der )
+            else:
+                self.D = 0
+        
+            self.Der = self.Err
+            
+            ###################################################################
+            # Integral
+            ###################################################################
+            self.Int = self.Int + self.Err
+    
+            if self.Int > self.IntMax:
+                self.Int = self.IntMax
+            elif self.Int < self.IntMin:
+                self.Int = self.IntMin
+    
+            self.I = self.Int * self.Ki
+        ###################################################################
+        # PID Total
+        ###################################################################
+        PID = self.P + self.I + self.D
+        if PID >= 0:
+            PID = min(PID, self.PIDMax)
+        else:
+            PID = max(PID, -self.PIDMax)
+        log.info("%s, Err, %f, P, %f, I, %f, D, %f, PID, %f" % (self.Key, self.Err, self.P, self.I, self.D, PID))
+        self.IsInit = False
+        return PID
 
 # Constants
-IMAGE_WIDTH = 176 #320
-IMAGE_HEIGHT = 144 #240
-MAX_VELOCITY = 0.1 
+IMAGE_WIDTH = 176 #320 #176
+IMAGE_HEIGHT = 144 #240 #144
+X_MAX_VELOCITY = 0.1 
+Y_MAX_VELOCITY = 0.125
 MAX_HISTORY = 5
-X_VEL_SCALAR = 0.0005 
-Y_VEL_SCALAR = 0.000625
+X_VEL_SCALAR = 0.001 
+Y_VEL_SCALAR = 0.00125
 Z_VEL_SCALAR = 0
-X_DERIVATIVE_SCALAR = 0.0005
-Y_DERIVATIVE_SCALAR = 0.000625
-X_INT_SCALAR = 0.0001
-Y_INT_SCALAR = 0.0001
+X_DERIVATIVE_SCALAR = 0.001
+Y_DERIVATIVE_SCALAR = 0.00125
+X_INT_SCALAR = 0
+Y_INT_SCALAR = 0
+X_DEAD_BAND=5
+Y_DEAD_BAND=5
 
 CONST_SCALAR = [X_VEL_SCALAR, Y_VEL_SCALAR, Z_VEL_SCALAR]
 MIN_DISTANCE = 0
-MAX_SCALAR = 0.1
 DIRECTION_LETTERS = ['x','y','z']
 
 # Global Variables
 MyTwist = TwistStamped()
 PrevDiameter = 0
-PrevVector = 5
-p_x=pid.PID(X_VEL_SCALAR, X_INT_SCALAR, X_DERIVATIVE_SCALAR)
-p_y=pid.PID(Y_VEL_SCALAR, Y_INT_SCALAR, Y_DERIVATIVE_SCALAR)
+PrevVector = []
+p_x=PID('vel_x', X_VEL_SCALAR, X_INT_SCALAR, X_DERIVATIVE_SCALAR, X_MAX_VELOCITY, 0, X_DEAD_BAND)
+p_y=PID('vel_y', Y_VEL_SCALAR, Y_INT_SCALAR, Y_DERIVATIVE_SCALAR, Y_MAX_VELOCITY, 0, Y_DEAD_BAND)
 FwdCam = False
 PrevCam = False
 CurCam = False
@@ -45,25 +133,14 @@ def CalcScaledVelocity( LineVector ):
     global p_y
     NewVel = Twist().linear
 #    VelocityVector = CalcVelocity( LineVector )
-    print "X",
-    Velocity = p_x.update(getattr(LineVector, DIRECTION_LETTERS[0]))
-    if Velocity > 0:
-        Velocity = min( Velocity, MAX_VELOCITY )
-    else:
-        Velocity = max( Velocity, -MAX_VELOCITY )
+    Velocity = p_x.ComputePID(getattr(LineVector, DIRECTION_LETTERS[0]))
     setattr(NewVel, DIRECTION_LETTERS[0], Velocity) 
-
-    print "Y",
-    Velocity = p_y.update(getattr(LineVector, DIRECTION_LETTERS[1]))
-    if Velocity > 0:
-        Velocity = min( Velocity, MAX_VELOCITY )
-    else:
-        Velocity = max( Velocity, -MAX_VELOCITY )
+    Velocity = p_y.ComputePID(getattr(LineVector, DIRECTION_LETTERS[1]))
     setattr(NewVel, DIRECTION_LETTERS[1], Velocity )    
 
     # Do not allow for vertical motion
     NewVel.z = 0
-    
+
     #print NewVel
     return NewVel
    
@@ -89,12 +166,7 @@ def ProcessImagePosition (data):
     takeoff_pub = rospy.Publisher('/ardrone/takeoff', std_msgs.msg.Empty)
     toggleCam = rospy.ServiceProxy('/ardrone/togglecam', std_srvs.srv.Empty)
     
-#    rospy.loginfo(rospy.get_name()+"I heard %s",data.data)
-
-    #print "*****"
     NewTwist = data
-    #print "In: "
-    #print NewTwist.twist.linear
     key = NewTwist.header.frame_id
     # takeoff and landing
     if key == 'land':
@@ -113,10 +185,11 @@ def ProcessImagePosition (data):
     if key == 'switch' and prev_key != key:
         try:
             toggleCam()
-            print NewTwist.header.seq
+            log.warn("ToggleCam %d" % FwdCam)
 #            FwdCam = not FwdCam
 #            print FwdCam
         except rospy.ServiceException, e:
+            log.critical("Service call failed: %s"%e)
             print "Service call failed: %s"%e
 
     prev_key = key
@@ -186,12 +259,10 @@ def ProcessXlateImage( data ):
         ProcessImagePosition( NewTwist )
 
         # Keep some history for when the tag disappears
-#        while len(PrevVector) >= MAX_HISTORY:
-#            PrevVector.pop(0)
-#        PrevVector.append(NewTwist.twist)
+        while len(PrevVector) >= MAX_HISTORY:
+            PrevVector.pop(0)
+        PrevVector.append(NewTwist.twist)
         
-#        print "Found Tag %d" % len(PrevVector)
-
     else:
         # Extrapolate history
 #        try:
@@ -206,17 +277,14 @@ def ProcessXlateImage( data ):
         NewTwist.twist.linear.y = 0
         NewTwist.twist.linear.z = 0
         NewTwist.twist.angular.z = 0
-        p_x.better_init()
-        p_y.better_init()
+        p_x.ReInit()
+        p_y.ReInit()
         prev_key = 'foobar'
         pub = rospy.Publisher("cmd_vel", Twist )
         pub.publish( NewTwist.twist )
         #ProcessImagePosition( NewTwist )
     
 def DroneDriver():
-    p_x.setPoint(0)
-    p_y.setPoint(0)
-    
     rospy.init_node('drone_driver')
     rospy.Subscriber("tags", Tags, ProcessXlateImage )   
     rospy.Subscriber("image_pos", TwistStamped, ProcessImagePosition )

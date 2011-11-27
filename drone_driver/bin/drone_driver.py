@@ -41,7 +41,7 @@ class PID:
         self.Time = datetime.datetime.now()
         
     def ReInit(self):
-        self.Der = self.DerInit
+        self.Der = self.DerInit 
         self.Int = self.IntInit
         self.Err = self.ErrInit
         self.IsInit = True
@@ -99,20 +99,26 @@ class PID:
         return PID
 
 # Constants
-IMAGE_WIDTH = 176 #320 #176
-IMAGE_HEIGHT = 144 #240 #144
+IMAGE_WIDTH = 320 #320 #176
+IMAGE_HEIGHT = 240 #240 #144
 X_MAX_VELOCITY = 0.1 
 Y_MAX_VELOCITY = 0.1
+Z_MAX_VELOCITY = 0.2
 MAX_HISTORY = 5
-X_VEL_SCALAR = 0.003
-Y_VEL_SCALAR = 0.003
-Z_VEL_SCALAR = 0
-X_DERIVATIVE_SCALAR = 1000
-Y_DERIVATIVE_SCALAR = 1000
+X_VEL_SCALAR = 0.02 # FWD CAM ONLY....DWN_CAM 0.003
+Y_VEL_SCALAR = 0.001
+Z_VEL_SCALAR = Y_VEL_SCALAR*(float(IMAGE_WIDTH)/IMAGE_HEIGHT)
+X_DERIVATIVE_SCALAR = 7500 # FWD CAM ONLY....DWN CAM 1000
+Y_DERIVATIVE_SCALAR = 1500
+Z_DERIVATIVE_SCALAR = Y_DERIVATIVE_SCALAR*(float(IMAGE_WIDTH)/IMAGE_HEIGHT)
 X_INT_SCALAR = 0
 Y_INT_SCALAR = 0
-X_DEAD_BAND=8
+Z_INT_SCALAR = 0
+X_DEAD_BAND=1 ### FWD CAM ONLY....DWN CAM 8
 Y_DEAD_BAND=8
+Z_DEAD_BAND=Y_DEAD_BAND*float(float(IMAGE_WIDTH)/IMAGE_HEIGHT)
+FWD_CAM_TAG_DIAMETER=20
+DWN_CAM_TAG_DIAGMETER=20
 
 CONST_SCALAR = [X_VEL_SCALAR, Y_VEL_SCALAR, Z_VEL_SCALAR]
 MIN_DISTANCE = 0
@@ -124,7 +130,8 @@ PrevDiameter = 0
 PrevVector = []
 p_x=PID('vel_x', X_VEL_SCALAR, X_INT_SCALAR, X_DERIVATIVE_SCALAR, X_MAX_VELOCITY, 0, X_DEAD_BAND)
 p_y=PID('vel_y', Y_VEL_SCALAR, Y_INT_SCALAR, Y_DERIVATIVE_SCALAR, Y_MAX_VELOCITY, 0, Y_DEAD_BAND)
-FwdCam = False
+p_z=PID('vel_z', Z_VEL_SCALAR, Z_INT_SCALAR, Z_DERIVATIVE_SCALAR, Z_MAX_VELOCITY, 0, Z_DEAD_BAND)
+FwdCam = True
 PrevCam = False
 CurCam = False
 prev_key = 'foobar'
@@ -132,15 +139,15 @@ prev_key = 'foobar'
 def CalcScaledVelocity( LineVector ):
     global p_x
     global p_y
+    global p_z
     NewVel = Twist().linear
 #    VelocityVector = CalcVelocity( LineVector )
     Velocity = p_x.ComputePID(getattr(LineVector, DIRECTION_LETTERS[0]))
     setattr(NewVel, DIRECTION_LETTERS[0], Velocity) 
     Velocity = p_y.ComputePID(getattr(LineVector, DIRECTION_LETTERS[1]))
-    setattr(NewVel, DIRECTION_LETTERS[1], Velocity )    
-
-    # Do not allow for vertical motion
-    NewVel.z = 0
+    setattr(NewVel, DIRECTION_LETTERS[1], Velocity )
+    Velocity = p_z.ComputePID(getattr(LineVector, DIRECTION_LETTERS[2]))
+    setattr(NewVel, DIRECTION_LETTERS[2], Velocity )
 
     #print NewVel
     return NewVel
@@ -226,6 +233,7 @@ def ProcessXlateImage( data ):
     global p_x
     global p_y
     global prev_key
+    global FWD_CAM_TAG_DIAMETER
         
     InputTags = data
     NewTwist = TwistStamped()
@@ -240,9 +248,9 @@ def ProcessXlateImage( data ):
             # +Z_fwd_cam = +Z_base - points up
             # +Y_fwd_cam = +Y_base - points left
             # +X_fwd_cam = +X_base - points forward
-            NewTwist.twist.linear.x = InputTags.tags[0].diameter - 40
-            NewTwist.twist.linear.z = 0 #( IMAGE_WIDTH/2 ) - InputTags.tags[0].y
-            NewTwist.twist.linear.y = 0 #( IMAGE_HEIGHT/2 ) - InputTags.tags[0].x
+            NewTwist.twist.linear.x = InputTags.tags[0].diameter - FWD_CAM_TAG_DIAMETER
+            NewTwist.twist.linear.y = InputTags.tags[0].x - ( IMAGE_WIDTH/2 ) #( IMAGE_WIDTH/2 ) - InputTags.tags[0].y
+            NewTwist.twist.linear.z = InputTags.tags[0].y - ( IMAGE_HEIGHT/2 ) #( IMAGE_HEIGHT/2 ) - InputTags.tags[0].x
             #NewTwist.twist.angular.z = 0 # No rotation on fwd cam
             #PrevDiameter = InputTags.tags[0].diameter
         else:

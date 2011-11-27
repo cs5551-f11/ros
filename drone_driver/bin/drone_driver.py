@@ -9,12 +9,11 @@ import std_msgs.msg
 import std_srvs.srv
 import math, logging, datetime
 
-now = datetime.datetime.now()
 logging.basicConfig()
 log = logging.getLogger("DroneDriver")
-hdlr = logging.FileHandler('driver%s.log' % now.strftime("%Y-%m-%d %H:%M"))
+hdlr = logging.FileHandler('driver%s.log' % datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
 log.setLevel(logging.DEBUG) #set verbosity to show all messages of severity >= DEBUG
-formatter = logging.Formatter('%(message)s')
+formatter = logging.Formatter('%(asctime)s %(message)s')
 hdlr.setFormatter(formatter)
 log.addHandler(hdlr)
 log.info("Starting DroneDriver")
@@ -39,13 +38,14 @@ class PID:
         self.ErrInit = ErrInit
         self.PIDMax = PIDMax
         self.IsInit = True
+        self.Time = datetime.datetime.now()
         
     def ReInit(self):
         self.Der = self.DerInit
         self.Int = self.IntInit
         self.Err = self.ErrInit
-        self.IsInit = True    
-        
+        self.IsInit = True
+        self.Time = datetime.datetime.now()
 
     def ComputePID(self,CurVal):
         global log
@@ -66,12 +66,13 @@ class PID:
             ###################################################################
             # Derivative
             ###################################################################
-            # If IsInit that means this is first frame, so don't do anything with derivative   
+            # If IsInit that means this is first frame, so don't do anything with derivative
+            TimeDelta = datetime.datetime.now() - self.Time
             if not self.IsInit:
-                self.D = self.Kd * ( self.Err - self.Der )
+                self.D = self.Kd * float( self.Err - self.Der ) / TimeDelta.microseconds
             else:
                 self.D = 0
-        
+            self.Time = datetime.datetime.now()
             self.Der = self.Err
             
             ###################################################################
@@ -101,17 +102,17 @@ class PID:
 IMAGE_WIDTH = 176 #320 #176
 IMAGE_HEIGHT = 144 #240 #144
 X_MAX_VELOCITY = 0.1 
-Y_MAX_VELOCITY = 0.125
+Y_MAX_VELOCITY = 0.1
 MAX_HISTORY = 5
-X_VEL_SCALAR = 0.001 
-Y_VEL_SCALAR = 0.00125
+X_VEL_SCALAR = 0.003
+Y_VEL_SCALAR = 0.003
 Z_VEL_SCALAR = 0
-X_DERIVATIVE_SCALAR = 0.001
-Y_DERIVATIVE_SCALAR = 0.00125
+X_DERIVATIVE_SCALAR = 1000
+Y_DERIVATIVE_SCALAR = 1000
 X_INT_SCALAR = 0
 Y_INT_SCALAR = 0
-X_DEAD_BAND=5
-Y_DEAD_BAND=5
+X_DEAD_BAND=8
+Y_DEAD_BAND=8
 
 CONST_SCALAR = [X_VEL_SCALAR, Y_VEL_SCALAR, Z_VEL_SCALAR]
 MIN_DISTANCE = 0

@@ -40,7 +40,27 @@ class PID:
         self.IsInit = True
         self.Time = datetime.datetime.now()
         
-    def ReInit(self):
+    def ReInit(self, Key='none', Kp=0.1, Ki=0.0, Kd=0.05, PIDMax=1, ErrInit=0, ErrMin=10, DerInit=0, DerMin=1, IntInit=0, IntMax=25, IntMin=-25, Goal=0):
+        self.Key = Key
+        self.Kp = Kp
+        self.Ki = Ki
+        self.Kd = Kd
+        self.Der = DerInit
+        self.DerInit = DerInit
+        self.DerMin = DerMin 
+        self.Int = IntInit
+        self.IntInit = IntInit
+        self.IntMax = IntMax
+        self.IntMin = IntMin
+        self.ErrMin = ErrMin
+        self.Goal = Goal
+        self.Err = ErrInit
+        self.ErrInit = ErrInit
+        self.PIDMax = PIDMax
+        self.IsInit = True
+        self.Time = datetime.datetime.now()
+                
+    def Reset(self):
         self.Der = self.DerInit 
         self.Int = self.IntInit
         self.Err = self.ErrInit
@@ -55,8 +75,8 @@ class PID:
         if math.fabs(self.Err) < self.ErrMin and self.Der < self.DerMin:
             # Within the "Dead Band" region, so stop moving so not to induce error
             self.P = 0
-            self.D = 0
             self.I = 0
+            self.D = 0
         else:
             ###################################################################
             # Proportional
@@ -98,39 +118,59 @@ class PID:
         self.IsInit = False
         return PID
 
-# Constants
-IMAGE_WIDTH = 320 #320 #176
-IMAGE_HEIGHT = 240 #240 #144
-X_MAX_VELOCITY = 0.1 
-Y_MAX_VELOCITY = 0.1
-Z_MAX_VELOCITY = 0.2
-MAX_HISTORY = 5
-X_VEL_SCALAR = 0.02 # FWD CAM ONLY....DWN_CAM 0.003
-Y_VEL_SCALAR = 0.001
-Z_VEL_SCALAR = Y_VEL_SCALAR*(float(IMAGE_WIDTH)/IMAGE_HEIGHT)
-X_DERIVATIVE_SCALAR = 7500 # FWD CAM ONLY....DWN CAM 1000
-Y_DERIVATIVE_SCALAR = 1500
-Z_DERIVATIVE_SCALAR = Y_DERIVATIVE_SCALAR*(float(IMAGE_WIDTH)/IMAGE_HEIGHT)
-X_INT_SCALAR = 0
-Y_INT_SCALAR = 0
-Z_INT_SCALAR = 0
-X_DEAD_BAND=1 ### FWD CAM ONLY....DWN CAM 8
-Y_DEAD_BAND=8
-Z_DEAD_BAND=Y_DEAD_BAND*float(float(IMAGE_WIDTH)/IMAGE_HEIGHT)
-FWD_CAM_TAG_DIAMETER=20
-DWN_CAM_TAG_DIAGMETER=20
+###################################################################
+# Forward Cam Constants
+###################################################################
+FWD_IMAGE_WIDTH = 320
+FWD_IMAGE_HEIGHT = 240
+FWD_X_MAX_VELOCITY = 0.1 
+FWD_Y_MAX_VELOCITY = 0.1
+FWD_Z_MAX_VELOCITY = 0.2
+FWD_X_VEL_SCALAR = 0.02
+FWD_Y_VEL_SCALAR = 0.001
+FWD_Z_VEL_SCALAR = FWD_Y_VEL_SCALAR*(float(FWD_IMAGE_WIDTH)/FWD_IMAGE_HEIGHT)
+FWD_X_DERIVATIVE_SCALAR = 7500
+FWD_Y_DERIVATIVE_SCALAR = 1500
+FWD_Z_DERIVATIVE_SCALAR = FWD_Y_DERIVATIVE_SCALAR*(float(FWD_IMAGE_WIDTH)/FWD_IMAGE_HEIGHT)
+FWD_X_INT_SCALAR = 0
+FWD_Y_INT_SCALAR = 0
+FWD_Z_INT_SCALAR = 0
+FWD_X_DEAD_BAND=1 ### FWD CAM ONLY....DWN CAM 8
+FWD_Y_DEAD_BAND=8
+FWD_Z_DEAD_BAND=FWD_Y_DEAD_BAND*float(float(FWD_IMAGE_WIDTH)/FWD_IMAGE_HEIGHT)
+FWD_TAG_DIAMETER=20
+###################################################################
+# Downward Cam Constants 
+###################################################################
+DWN_IMAGE_WIDTH = 176
+DWN_IMAGE_HEIGHT = 144
+DWN_X_MAX_VELOCITY = 0.1 
+DWN_Y_MAX_VELOCITY = 0.1
+DWN_Z_MAX_VELOCITY = 0.2
+DWN_X_VEL_SCALAR = 0.0015
+DWN_Y_VEL_SCALAR = DWN_X_VEL_SCALAR#*(float(DWN_IMAGE_WIDTH)/DWN_IMAGE_HEIGHT)
+DWN_Z_VEL_SCALAR = 0.02
+DWN_X_DERIVATIVE_SCALAR = 500
+DWN_Y_DERIVATIVE_SCALAR = DWN_X_DERIVATIVE_SCALAR*(float(DWN_IMAGE_WIDTH)/DWN_IMAGE_HEIGHT)
+DWN_Z_DERIVATIVE_SCALAR = 7500
+DWN_X_INT_SCALAR = 0
+DWN_Y_INT_SCALAR = 0
+DWN_Z_INT_SCALAR = 0
+DWN_X_DEAD_BAND=8 
+DWN_Y_DEAD_BAND=DWN_X_DEAD_BAND*float(float(DWN_IMAGE_WIDTH)/DWN_IMAGE_HEIGHT)
+DWN_Z_DEAD_BAND=1
+DWN_TAG_DIAMETER=13
 
-CONST_SCALAR = [X_VEL_SCALAR, Y_VEL_SCALAR, Z_VEL_SCALAR]
-MIN_DISTANCE = 0
+MAX_HISTORY=5
 DIRECTION_LETTERS = ['x','y','z']
 
 # Global Variables
 MyTwist = TwistStamped()
 PrevDiameter = 0
 PrevVector = []
-p_x=PID('vel_x', X_VEL_SCALAR, X_INT_SCALAR, X_DERIVATIVE_SCALAR, X_MAX_VELOCITY, 0, X_DEAD_BAND)
-p_y=PID('vel_y', Y_VEL_SCALAR, Y_INT_SCALAR, Y_DERIVATIVE_SCALAR, Y_MAX_VELOCITY, 0, Y_DEAD_BAND)
-p_z=PID('vel_z', Z_VEL_SCALAR, Z_INT_SCALAR, Z_DERIVATIVE_SCALAR, Z_MAX_VELOCITY, 0, Z_DEAD_BAND)
+p_x=PID('vel_x', FWD_X_VEL_SCALAR, FWD_X_INT_SCALAR, FWD_X_DERIVATIVE_SCALAR, FWD_X_MAX_VELOCITY, 0, FWD_X_DEAD_BAND)
+p_y=PID('vel_y', FWD_Y_VEL_SCALAR, FWD_Y_INT_SCALAR, FWD_Y_DERIVATIVE_SCALAR, FWD_Y_MAX_VELOCITY, 0, FWD_Y_DEAD_BAND)
+p_z=PID('vel_z', FWD_Z_VEL_SCALAR, FWD_Z_INT_SCALAR, FWD_Z_DERIVATIVE_SCALAR, FWD_Z_MAX_VELOCITY, 0, FWD_Z_DEAD_BAND)
 FwdCam = True
 PrevCam = False
 CurCam = False
@@ -167,6 +207,9 @@ def ProcessImagePosition (data):
     global MyTwist
     global FwdCam
     global prev_key
+    global p_x
+    global p_y
+    global p_z
     
     pub = rospy.Publisher('cmd_vel', Twist)
     land_pub = rospy.Publisher('/ardrone/land', std_msgs.msg.Empty)
@@ -193,8 +236,17 @@ def ProcessImagePosition (data):
     if key == 'switch' and prev_key != key:
         try:
             toggleCam()
+            FwdCam = not FwdCam
+            if FwdCam:
+                p_x.ReInit('vel_x', FWD_X_VEL_SCALAR, FWD_X_INT_SCALAR, FWD_X_DERIVATIVE_SCALAR, FWD_X_MAX_VELOCITY, 0, FWD_X_DEAD_BAND)
+                p_y.ReInit('vel_y', FWD_Y_VEL_SCALAR, FWD_Y_INT_SCALAR, FWD_Y_DERIVATIVE_SCALAR, FWD_Y_MAX_VELOCITY, 0, FWD_Y_DEAD_BAND)
+                p_z.ReInit('vel_z', FWD_Z_VEL_SCALAR, FWD_Z_INT_SCALAR, FWD_Z_DERIVATIVE_SCALAR, FWD_Z_MAX_VELOCITY, 0, FWD_Z_DEAD_BAND)
+            else:
+                p_x.ReInit('vel_x', DWN_X_VEL_SCALAR, DWN_X_INT_SCALAR, DWN_X_DERIVATIVE_SCALAR, DWN_X_MAX_VELOCITY, 0, DWN_X_DEAD_BAND)
+                p_y.ReInit('vel_y', DWN_Y_VEL_SCALAR, DWN_Y_INT_SCALAR, DWN_Y_DERIVATIVE_SCALAR, DWN_Y_MAX_VELOCITY, 0, DWN_Y_DEAD_BAND)
+                p_z.ReInit('vel_z', DWN_Z_VEL_SCALAR, DWN_Z_INT_SCALAR, DWN_Z_DERIVATIVE_SCALAR, DWN_Z_MAX_VELOCITY, 0, DWN_Z_DEAD_BAND)
             log.warn("ToggleCam %d" % FwdCam)
-#            FwdCam = not FwdCam
+            
 #            print FwdCam
         except rospy.ServiceException, e:
             log.critical("Service call failed: %s"%e)
@@ -229,11 +281,13 @@ def ProcessImagePosition (data):
     
 def ProcessXlateImage( data ):
     global PrevDiameter
-    global FwdCam
     global p_x
     global p_y
+    global p_z
+    global FwdCam
     global prev_key
-    global FWD_CAM_TAG_DIAMETER
+    global FWD_TAG_DIAMETER
+    global DWN_TAG_DIAMETER
         
     InputTags = data
     NewTwist = TwistStamped()
@@ -243,14 +297,15 @@ def ProcessXlateImage( data ):
             NewTwist.header.frame_id = 'switch'
         else:
             NewTwist.header.frame_id = 'move'
+            
         if FwdCam:
             # Forward Camera
             # +Z_fwd_cam = +Z_base - points up
             # +Y_fwd_cam = +Y_base - points left
             # +X_fwd_cam = +X_base - points forward
-            NewTwist.twist.linear.x = InputTags.tags[0].diameter - FWD_CAM_TAG_DIAMETER
-            NewTwist.twist.linear.y = InputTags.tags[0].x - ( IMAGE_WIDTH/2 ) #( IMAGE_WIDTH/2 ) - InputTags.tags[0].y
-            NewTwist.twist.linear.z = InputTags.tags[0].y - ( IMAGE_HEIGHT/2 ) #( IMAGE_HEIGHT/2 ) - InputTags.tags[0].x
+            NewTwist.twist.linear.x = InputTags.tags[0].diameter - FWD_TAG_DIAMETER
+            NewTwist.twist.linear.y = InputTags.tags[0].x - ( FWD_IMAGE_WIDTH/2 ) #( IMAGE_WIDTH/2 ) - InputTags.tags[0].y
+            NewTwist.twist.linear.z = InputTags.tags[0].y - ( FWD_IMAGE_HEIGHT/2 ) #( IMAGE_HEIGHT/2 ) - InputTags.tags[0].x
             #NewTwist.twist.angular.z = 0 # No rotation on fwd cam
             #PrevDiameter = InputTags.tags[0].diameter
         else:
@@ -259,9 +314,9 @@ def ProcessXlateImage( data ):
             # +Z_down_cam = -Z_base - points down, 
             # +Y_down_cam = +X_base - points forward
             # +X_down_cam = +Y_base - points left
-            NewTwist.twist.linear.x = InputTags.tags[0].y - ( IMAGE_HEIGHT/2 )
-            NewTwist.twist.linear.y = InputTags.tags[0].x - ( IMAGE_WIDTH/2 )
-            NewTwist.twist.linear.z = 0 # No depth for down cam
+            NewTwist.twist.linear.x = InputTags.tags[0].y - ( DWN_IMAGE_HEIGHT/2 )
+            NewTwist.twist.linear.y = InputTags.tags[0].x - ( DWN_IMAGE_WIDTH/2 )
+            NewTwist.twist.linear.z = DWN_TAG_DIAMETER - InputTags.tags[0].diameter
             #NewTwist.twist.angular.z = InputTags.tags[0].zRot
         
         #rospy.Publisher("image_pos", NewTwist )
@@ -286,8 +341,9 @@ def ProcessXlateImage( data ):
         NewTwist.twist.linear.y = 0
         NewTwist.twist.linear.z = 0
         NewTwist.twist.angular.z = 0
-        p_x.ReInit()
-        p_y.ReInit()
+        p_x.Reset()
+        p_y.Reset()
+        p_z.Reset()
         prev_key = 'foobar'
         pub = rospy.Publisher("cmd_vel", Twist )
         pub.publish( NewTwist.twist )

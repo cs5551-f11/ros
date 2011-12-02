@@ -5,6 +5,7 @@ import rospy
 from ar_recog.msg import Tag, Tags
 from geometry_msgs.msg import TwistStamped
 from geometry_msgs.msg import Twist
+#from ardrone_brown.ardrone_driver.msg import Navdata
 import std_msgs.msg
 import std_srvs.srv
 import math, logging, datetime
@@ -147,11 +148,11 @@ DWN_IMAGE_HEIGHT = 144
 DWN_X_MAX_VELOCITY = 0.1 
 DWN_Y_MAX_VELOCITY = 0.1
 DWN_Z_MAX_VELOCITY = 0.2
-DWN_X_VEL_SCALAR = 0.0015
-DWN_Y_VEL_SCALAR = DWN_X_VEL_SCALAR#*(float(DWN_IMAGE_WIDTH)/DWN_IMAGE_HEIGHT)
+DWN_Y_VEL_SCALAR = 0.0015
+DWN_X_VEL_SCALAR = DWN_Y_VEL_SCALAR*(float(DWN_IMAGE_WIDTH)/DWN_IMAGE_HEIGHT)
 DWN_Z_VEL_SCALAR = 0.02
 DWN_X_DERIVATIVE_SCALAR = 500
-DWN_Y_DERIVATIVE_SCALAR = DWN_X_DERIVATIVE_SCALAR*(float(DWN_IMAGE_WIDTH)/DWN_IMAGE_HEIGHT)
+DWN_Y_DERIVATIVE_SCALAR = DWN_X_DERIVATIVE_SCALAR#*(float(DWN_IMAGE_WIDTH)/DWN_IMAGE_HEIGHT)
 DWN_Z_DERIVATIVE_SCALAR = 7500
 DWN_X_INT_SCALAR = 0
 DWN_Y_INT_SCALAR = 0
@@ -172,6 +173,7 @@ p_x=PID('vel_x', FWD_X_VEL_SCALAR, FWD_X_INT_SCALAR, FWD_X_DERIVATIVE_SCALAR, FW
 p_y=PID('vel_y', FWD_Y_VEL_SCALAR, FWD_Y_INT_SCALAR, FWD_Y_DERIVATIVE_SCALAR, FWD_Y_MAX_VELOCITY, 0, FWD_Y_DEAD_BAND)
 p_z=PID('vel_z', FWD_Z_VEL_SCALAR, FWD_Z_INT_SCALAR, FWD_Z_DERIVATIVE_SCALAR, FWD_Z_MAX_VELOCITY, 0, FWD_Z_DEAD_BAND)
 FwdCam = True
+Flying = False
 PrevCam = False
 CurCam = False
 prev_key = 'foobar'
@@ -292,6 +294,12 @@ def ProcessXlateImage( data ):
     InputTags = data
     NewTwist = TwistStamped()
     
+    if InputTags.image_width != 320 and FwdCam:
+        p_x.ReInit('vel_x', DWN_X_VEL_SCALAR, DWN_X_INT_SCALAR, DWN_X_DERIVATIVE_SCALAR, DWN_X_MAX_VELOCITY, 0, DWN_X_DEAD_BAND)
+        p_y.ReInit('vel_y', DWN_Y_VEL_SCALAR, DWN_Y_INT_SCALAR, DWN_Y_DERIVATIVE_SCALAR, DWN_Y_MAX_VELOCITY, 0, DWN_Y_DEAD_BAND)
+        p_z.ReInit('vel_z', DWN_Z_VEL_SCALAR, DWN_Z_INT_SCALAR, DWN_Z_DERIVATIVE_SCALAR, DWN_Z_MAX_VELOCITY, 0, DWN_Z_DEAD_BAND)
+        FwdCam = False
+    
     if InputTags.tag_count > 0:
         if InputTags.tags[0].id == 0:
             NewTwist.header.frame_id = 'switch'
@@ -349,10 +357,15 @@ def ProcessXlateImage( data ):
         pub.publish( NewTwist.twist )
         #ProcessImagePosition( NewTwist )
     
+def ProcessNavData(data):
+    NewNavdata = Navdata()
+    print NewNavdata
+    
 def DroneDriver():
     rospy.init_node('drone_driver')
     rospy.Subscriber("tags", Tags, ProcessXlateImage )   
     rospy.Subscriber("image_pos", TwistStamped, ProcessImagePosition )
+    rospy.Subscriber("/adrone/navdata", TwistStamped, ProcessNavData )
     rospy.spin()
 
 if __name__ == '__main__':

@@ -12,6 +12,7 @@
   <depend package="std_srvs"/>
   <depend package="std_msgs"/>
   <depend package="ar_recog"/>
+  <depend package="ardrone_brown"/>
 
 </package>
 

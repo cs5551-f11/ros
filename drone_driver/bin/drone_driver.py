@@ -71,7 +71,8 @@ class PID:
     def ComputePID(self,CurVal):
         global log
         self.Err = self.Goal - CurVal
-        
+        print self.Key, 
+        print " %f %f %f" % ( self.Kp, self.Ki, self.Kd )
         # check for "Dead Band" region where no controls are sent 
         if math.fabs(self.Err) < self.ErrMin and self.Der < self.DerMin:
             # Within the "Dead Band" region, so stop moving so not to induce error
@@ -115,7 +116,6 @@ class PID:
             PID = min(PID, self.PIDMax)
         else:
             PID = max(PID, -self.PIDMax)
-        log.info("%s, Err, %f, P, %f, I, %f, D, %f, PID, %f" % (self.Key, self.Err, self.P, self.I, self.D, PID))
         self.IsInit = False
         return PID
 
@@ -126,19 +126,24 @@ FWD_IMAGE_WIDTH = 320
 FWD_IMAGE_HEIGHT = 240
 FWD_X_MAX_VELOCITY = 0.1 
 FWD_Y_MAX_VELOCITY = 0.1
-FWD_Z_MAX_VELOCITY = 0.2
+FWD_Z_MAX_VELOCITY = 0.5
+FWD_Z_ANG_MAX_VELOCITY = 0.0
 FWD_X_VEL_SCALAR = 0.02
 FWD_Y_VEL_SCALAR = 0.001
-FWD_Z_VEL_SCALAR = FWD_Y_VEL_SCALAR*(float(FWD_IMAGE_WIDTH)/FWD_IMAGE_HEIGHT)
+FWD_Z_VEL_SCALAR = 0.002
+FWD_Z_ANG_VEL_SCALAR = 0.0
 FWD_X_DERIVATIVE_SCALAR = 7500
 FWD_Y_DERIVATIVE_SCALAR = 1500
 FWD_Z_DERIVATIVE_SCALAR = FWD_Y_DERIVATIVE_SCALAR*(float(FWD_IMAGE_WIDTH)/FWD_IMAGE_HEIGHT)
+FWD_Z_ANG_DERIVATIVE_SCALAR = 0
 FWD_X_INT_SCALAR = 0
 FWD_Y_INT_SCALAR = 0
 FWD_Z_INT_SCALAR = 0
+FWD_Z_ANG_INT_SCALAR = 0
 FWD_X_DEAD_BAND=1 ### FWD CAM ONLY....DWN CAM 8
 FWD_Y_DEAD_BAND=8
 FWD_Z_DEAD_BAND=FWD_Y_DEAD_BAND*float(float(FWD_IMAGE_WIDTH)/FWD_IMAGE_HEIGHT)
+FWD_Z_ANG_DEAD_BAND=0
 FWD_TAG_DIAMETER=20
 ###################################################################
 # Downward Cam Constants 
@@ -148,19 +153,34 @@ DWN_IMAGE_HEIGHT = 144
 DWN_X_MAX_VELOCITY = 0.1 
 DWN_Y_MAX_VELOCITY = 0.1
 DWN_Z_MAX_VELOCITY = 0.2
+DWN_Z_ANG_MAX_VELOCITY = 0.3
 DWN_Y_VEL_SCALAR = 0.0015
 DWN_X_VEL_SCALAR = DWN_Y_VEL_SCALAR*(float(DWN_IMAGE_WIDTH)/DWN_IMAGE_HEIGHT)
-DWN_Z_VEL_SCALAR = 0.02
+DWN_Z_VEL_SCALAR = 0.1
+DWN_Z_ANG_VEL_SCALAR = 0.3
 DWN_X_DERIVATIVE_SCALAR = 500
 DWN_Y_DERIVATIVE_SCALAR = DWN_X_DERIVATIVE_SCALAR#*(float(DWN_IMAGE_WIDTH)/DWN_IMAGE_HEIGHT)
 DWN_Z_DERIVATIVE_SCALAR = 7500
+DWN_Z_ANG_DERIVATIVE_SCALAR = 100
 DWN_X_INT_SCALAR = 0
 DWN_Y_INT_SCALAR = 0
 DWN_Z_INT_SCALAR = 0
+DWN_Z_ANG_INT_SCALAR = 0
 DWN_X_DEAD_BAND=8 
 DWN_Y_DEAD_BAND=DWN_X_DEAD_BAND*float(float(DWN_IMAGE_WIDTH)/DWN_IMAGE_HEIGHT)
 DWN_Z_DEAD_BAND=1
+DWN_Z_ANG_DEAD_BAND=0
 DWN_TAG_DIAMETER=13
+###################################################################
+# No Tag Constants 
+###################################################################
+ALT_Z_MAX_VELOCITY = 0.3
+ALT_Z_VEL_SCALAR = 0.03
+ALT_Z_DERIVATIVE_SCALAR = 7500
+ALT_Z_INT_SCALAR = 0
+ALT_Z_DEAD_BAND=1
+ANG_VEL_TO_RADIANS_SCALAR=3
+
 
 MAX_HISTORY=5
 DIRECTION_LETTERS = ['x','y','z']
@@ -172,37 +192,39 @@ PrevVector = []
 p_x=PID('vel_x', FWD_X_VEL_SCALAR, FWD_X_INT_SCALAR, FWD_X_DERIVATIVE_SCALAR, FWD_X_MAX_VELOCITY, 0, FWD_X_DEAD_BAND)
 p_y=PID('vel_y', FWD_Y_VEL_SCALAR, FWD_Y_INT_SCALAR, FWD_Y_DERIVATIVE_SCALAR, FWD_Y_MAX_VELOCITY, 0, FWD_Y_DEAD_BAND)
 p_z=PID('vel_z', FWD_Z_VEL_SCALAR, FWD_Z_INT_SCALAR, FWD_Z_DERIVATIVE_SCALAR, FWD_Z_MAX_VELOCITY, 0, FWD_Z_DEAD_BAND)
+p_z_ang=PID('ang_z', FWD_Z_ANG_VEL_SCALAR, FWD_Z_ANG_INT_SCALAR, FWD_Z_ANG_DERIVATIVE_SCALAR, FWD_Z_ANG_MAX_VELOCITY, 0, FWD_Z_ANG_DEAD_BAND)
+p_z_alt=PID('alt_z', ALT_Z_VEL_SCALAR, ALT_Z_INT_SCALAR, ALT_Z_DERIVATIVE_SCALAR, ALT_Z_MAX_VELOCITY, 0, ALT_Z_DEAD_BAND)
+
 FwdCam = True
 Flying = False
 PrevCam = False
 CurCam = False
 prev_key = 'foobar'
+TagFound = False
+PoseMatch = False
     
 def CalcScaledVelocity( LineVector ):
     global p_x
     global p_y
     global p_z
     NewVel = Twist().linear
-#    VelocityVector = CalcVelocity( LineVector )
     Velocity = p_x.ComputePID(getattr(LineVector, DIRECTION_LETTERS[0]))
     setattr(NewVel, DIRECTION_LETTERS[0], Velocity) 
     Velocity = p_y.ComputePID(getattr(LineVector, DIRECTION_LETTERS[1]))
     setattr(NewVel, DIRECTION_LETTERS[1], Velocity )
     Velocity = p_z.ComputePID(getattr(LineVector, DIRECTION_LETTERS[2]))
     setattr(NewVel, DIRECTION_LETTERS[2], Velocity )
-
-    #print NewVel
     return NewVel
    
 def CalcScaledAngle( AngleVector ):
-    # TODO Figure out how to compute angular motion
+    global p_z_ang
     NewTwist = Twist().angular
-#    AngleVector = CalcAngle( AngleVector )
-    # TODO Make PID for angle
-    for i in range(len(DIRECTION_LETTERS)):
-        # TODO See if any scaling needed
-        Angle = AngleVector[i]
-        setattr(NewTwist, DIRECTION_LETTERS[i], Angle)
+    Angle = p_z_ang.ComputePID(getattr(AngleVector, DIRECTION_LETTERS[2]))
+    print Angle
+    setattr(NewTwist, DIRECTION_LETTERS[2], Angle )
+    print AngleVector
+    print NewTwist
+    print
     return NewTwist
     
 def ProcessImagePosition (data):
@@ -212,6 +234,9 @@ def ProcessImagePosition (data):
     global p_x
     global p_y
     global p_z
+    global p_z_ang
+    global ANG_VEL_TO_RADIANS_SCALAR
+    global PoseMatch
     
     pub = rospy.Publisher('cmd_vel', Twist)
     land_pub = rospy.Publisher('/ardrone/land', std_msgs.msg.Empty)
@@ -243,10 +268,13 @@ def ProcessImagePosition (data):
                 p_x.ReInit('vel_x', FWD_X_VEL_SCALAR, FWD_X_INT_SCALAR, FWD_X_DERIVATIVE_SCALAR, FWD_X_MAX_VELOCITY, 0, FWD_X_DEAD_BAND)
                 p_y.ReInit('vel_y', FWD_Y_VEL_SCALAR, FWD_Y_INT_SCALAR, FWD_Y_DERIVATIVE_SCALAR, FWD_Y_MAX_VELOCITY, 0, FWD_Y_DEAD_BAND)
                 p_z.ReInit('vel_z', FWD_Z_VEL_SCALAR, FWD_Z_INT_SCALAR, FWD_Z_DERIVATIVE_SCALAR, FWD_Z_MAX_VELOCITY, 0, FWD_Z_DEAD_BAND)
+                p_z_ang.ReInit('ang_z', FWD_Z_ANG_VEL_SCALAR, FWD_Z_ANG_INT_SCALAR, FWD_Z_ANG_DERIVATIVE_SCALAR, FWD_Z_ANG_MAX_VELOCITY, 0, FWD_Z_ANG_DEAD_BAND)
             else:
                 p_x.ReInit('vel_x', DWN_X_VEL_SCALAR, DWN_X_INT_SCALAR, DWN_X_DERIVATIVE_SCALAR, DWN_X_MAX_VELOCITY, 0, DWN_X_DEAD_BAND)
                 p_y.ReInit('vel_y', DWN_Y_VEL_SCALAR, DWN_Y_INT_SCALAR, DWN_Y_DERIVATIVE_SCALAR, DWN_Y_MAX_VELOCITY, 0, DWN_Y_DEAD_BAND)
                 p_z.ReInit('vel_z', DWN_Z_VEL_SCALAR, DWN_Z_INT_SCALAR, DWN_Z_DERIVATIVE_SCALAR, DWN_Z_MAX_VELOCITY, 0, DWN_Z_DEAD_BAND)
+                p_z_ang.ReInit('ang_z', DWN_Z_ANG_VEL_SCALAR, DWN_Z_ANG_INT_SCALAR, DWN_Z_ANG_DERIVATIVE_SCALAR, DWN_Z_ANG_MAX_VELOCITY, 0, DWN_Z_ANG_DEAD_BAND)
+                
             log.warn("ToggleCam %d" % FwdCam)
             
 #            print FwdCam
@@ -267,13 +295,27 @@ def ProcessImagePosition (data):
     # If the tag is switching direction in the frame (oscillating) then reduce the
     # speed to hover over target
     MyTwist.twist.linear = CalcScaledVelocity( NewTwist.twist.linear )
-    #MyTwist.twist.angular = CalcScaledAngle( NewTwist.twist.angular )
     if ( math.isnan( MyTwist.twist.linear.x ) ):
-        print 'NaN',
-        print MyTwist.twist.linear.x
-        
+        print 'NaN X',
         MyTwist.twist.linear.x = 0
+    if ( math.isnan( MyTwist.twist.linear.y ) ):
+        print 'NaN Y',
+        MyTwist.twist.linear.y = 0
+    if ( math.isnan( MyTwist.twist.linear.z ) ):
+        print 'NaN Z',
+        MyTwist.twist.linear.z = 0
 
+    if PoseMatch:
+        MyTwist.twist.angular = CalcScaledAngle( NewTwist.twist.angular )
+        if ( math.isnan( MyTwist.twist.angular.z ) ):
+            print 'NaN Z Ang',
+            MyTwist.twist.angular.z = 0
+
+        MyTwist.twist.linear.x = MyTwist.twist.linear.x*math.cos(MyTwist.twist.angular.z*ANG_VEL_TO_RADIANS_SCALAR) + MyTwist.twist.linear.y*math.sin(MyTwist.twist.angular.z*ANG_VEL_TO_RADIANS_SCALAR)
+        MyTwist.twist.linear.y = MyTwist.twist.linear.y*math.cos(MyTwist.twist.angular.z*ANG_VEL_TO_RADIANS_SCALAR) + MyTwist.twist.linear.x*math.sin(MyTwist.twist.angular.z*ANG_VEL_TO_RADIANS_SCALAR)
+    else:
+        MyTwist.twist.angular.z = 0
+            
     # Only publish the twist parameters to the drone
     pub.publish(MyTwist.twist)
 #    if MyTwist.twist.linear.x != 0 or MyTwist.twist.linear.y != 0:
@@ -286,21 +328,26 @@ def ProcessXlateImage( data ):
     global p_x
     global p_y
     global p_z
+    global p_z_ang
     global FwdCam
     global prev_key
     global FWD_TAG_DIAMETER
     global DWN_TAG_DIAMETER
+    global TagFound
         
     InputTags = data
     NewTwist = TwistStamped()
     
     if InputTags.image_width != 320 and FwdCam:
+        print "Switch to Down Cam"
         p_x.ReInit('vel_x', DWN_X_VEL_SCALAR, DWN_X_INT_SCALAR, DWN_X_DERIVATIVE_SCALAR, DWN_X_MAX_VELOCITY, 0, DWN_X_DEAD_BAND)
         p_y.ReInit('vel_y', DWN_Y_VEL_SCALAR, DWN_Y_INT_SCALAR, DWN_Y_DERIVATIVE_SCALAR, DWN_Y_MAX_VELOCITY, 0, DWN_Y_DEAD_BAND)
         p_z.ReInit('vel_z', DWN_Z_VEL_SCALAR, DWN_Z_INT_SCALAR, DWN_Z_DERIVATIVE_SCALAR, DWN_Z_MAX_VELOCITY, 0, DWN_Z_DEAD_BAND)
+        p_z_ang.ReInit('ang_z', DWN_Z_ANG_VEL_SCALAR, DWN_Z_ANG_INT_SCALAR, DWN_Z_ANG_DERIVATIVE_SCALAR, DWN_Z_ANG_MAX_VELOCITY, 0, DWN_Z_ANG_DEAD_BAND)
         FwdCam = False
-    
+
     if InputTags.tag_count > 0:
+        TagFound = True
         if InputTags.tags[0].id == 0:
             NewTwist.header.frame_id = 'switch'
         else:
@@ -314,7 +361,7 @@ def ProcessXlateImage( data ):
             NewTwist.twist.linear.x = InputTags.tags[0].diameter - FWD_TAG_DIAMETER
             NewTwist.twist.linear.y = InputTags.tags[0].x - ( FWD_IMAGE_WIDTH/2 ) #( IMAGE_WIDTH/2 ) - InputTags.tags[0].y
             NewTwist.twist.linear.z = InputTags.tags[0].y - ( FWD_IMAGE_HEIGHT/2 ) #( IMAGE_HEIGHT/2 ) - InputTags.tags[0].x
-            #NewTwist.twist.angular.z = 0 # No rotation on fwd cam
+            NewTwist.twist.angular.z = 0 # No rotation on fwd cam
             #PrevDiameter = InputTags.tags[0].diameter
         else:
             # Downward Camera
@@ -325,7 +372,7 @@ def ProcessXlateImage( data ):
             NewTwist.twist.linear.x = InputTags.tags[0].y - ( DWN_IMAGE_HEIGHT/2 )
             NewTwist.twist.linear.y = InputTags.tags[0].x - ( DWN_IMAGE_WIDTH/2 )
             NewTwist.twist.linear.z = DWN_TAG_DIAMETER - InputTags.tags[0].diameter
-            #NewTwist.twist.angular.z = InputTags.tags[0].zRot
+            NewTwist.twist.angular.z = InputTags.tags[0].zRot
         
         #rospy.Publisher("image_pos", NewTwist )
         ProcessImagePosition( NewTwist )
@@ -336,6 +383,7 @@ def ProcessXlateImage( data ):
         PrevVector.append(NewTwist.twist)
         
     else:
+        TagFound = False
         # Extrapolate history
 #        try:
 #            NewTwist.twist = PrevVector.pop(0)

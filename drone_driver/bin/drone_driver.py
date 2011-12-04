@@ -5,7 +5,7 @@ import rospy
 from ar_recog.msg import Tag, Tags
 from geometry_msgs.msg import TwistStamped
 from geometry_msgs.msg import Twist
-#from ardrone_brown.ardrone_driver.msg import Navdata
+from ardrone_brown.msg import Navdata
 import std_msgs.msg
 import std_srvs.srv
 import math, logging, datetime
@@ -42,6 +42,7 @@ class PID:
         self.Time = datetime.datetime.now()
         
     def ReInit(self, Key='none', Kp=0.1, Ki=0.0, Kd=0.05, PIDMax=1, ErrInit=0, ErrMin=10, DerInit=0, DerMin=1, IntInit=0, IntMax=25, IntMin=-25, Goal=0):
+        log.info("%s ReInit" % (self.Key))
         self.Key = Key
         self.Kp = Kp
         self.Ki = Ki
@@ -62,6 +63,7 @@ class PID:
         self.Time = datetime.datetime.now()
                 
     def Reset(self):
+        log.info("%s Reset" % (self.Key))
         self.Der = self.DerInit 
         self.Int = self.IntInit
         self.Err = self.ErrInit
@@ -71,8 +73,6 @@ class PID:
     def ComputePID(self,CurVal):
         global log
         self.Err = self.Goal - CurVal
-        print self.Key, 
-        print " %f %f %f" % ( self.Kp, self.Ki, self.Kd )
         # check for "Dead Band" region where no controls are sent 
         if math.fabs(self.Err) < self.ErrMin and self.Der < self.DerMin:
             # Within the "Dead Band" region, so stop moving so not to induce error
@@ -117,6 +117,7 @@ class PID:
         else:
             PID = max(PID, -self.PIDMax)
         self.IsInit = False
+        log.info("%s, Err, %f, P, %f, I, %f, D, %f, PID %f" % (self.Key, self.Err, self.P, self.I, self.D, PID))
         return PID
 
 ###################################################################
@@ -174,11 +175,13 @@ DWN_TAG_DIAMETER=13
 ###################################################################
 # No Tag Constants 
 ###################################################################
-ALT_Z_MAX_VELOCITY = 0.3
-ALT_Z_VEL_SCALAR = 0.03
-ALT_Z_DERIVATIVE_SCALAR = 7500
+ALT_Z_MAX_VELOCITY = 0.5
+ALT_Z_VEL_SCALAR = 0.0005
+ALT_Z_DERIVATIVE_SCALAR = 100
 ALT_Z_INT_SCALAR = 0
 ALT_Z_DEAD_BAND=1
+ALT_Z_GOAL=1150
+
 ANG_VEL_TO_RADIANS_SCALAR=3
 
 
@@ -187,6 +190,7 @@ DIRECTION_LETTERS = ['x','y','z']
 
 # Global Variables
 MyTwist = TwistStamped()
+NavTwist = Twist()
 PrevDiameter = 0
 PrevVector = []
 p_x=PID('vel_x', FWD_X_VEL_SCALAR, FWD_X_INT_SCALAR, FWD_X_DERIVATIVE_SCALAR, FWD_X_MAX_VELOCITY, 0, FWD_X_DEAD_BAND)
@@ -310,9 +314,10 @@ def ProcessImagePosition (data):
         if ( math.isnan( MyTwist.twist.angular.z ) ):
             print 'NaN Z Ang',
             MyTwist.twist.angular.z = 0
-
-        MyTwist.twist.linear.x = MyTwist.twist.linear.x*math.cos(MyTwist.twist.angular.z*ANG_VEL_TO_RADIANS_SCALAR) + MyTwist.twist.linear.y*math.sin(MyTwist.twist.angular.z*ANG_VEL_TO_RADIANS_SCALAR)
-        MyTwist.twist.linear.y = MyTwist.twist.linear.y*math.cos(MyTwist.twist.angular.z*ANG_VEL_TO_RADIANS_SCALAR) + MyTwist.twist.linear.x*math.sin(MyTwist.twist.angular.z*ANG_VEL_TO_RADIANS_SCALAR)
+        PrevX = MyTwist.twist.linear.x
+        PrevY = MyTwist.twist.linear.y
+        MyTwist.twist.linear.x = PrevX*math.cos(MyTwist.twist.angular.z*ANG_VEL_TO_RADIANS_SCALAR) + PrevY*math.sin(MyTwist.twist.angular.z*ANG_VEL_TO_RADIANS_SCALAR)
+        MyTwist.twist.linear.y = PrevY*math.cos(MyTwist.twist.angular.z*ANG_VEL_TO_RADIANS_SCALAR) + PrevX*math.sin(MyTwist.twist.angular.z*ANG_VEL_TO_RADIANS_SCALAR)
     else:
         MyTwist.twist.angular.z = 0
             
@@ -334,6 +339,7 @@ def ProcessXlateImage( data ):
     global FWD_TAG_DIAMETER
     global DWN_TAG_DIAMETER
     global TagFound
+    global NavTwist
         
     InputTags = data
     NewTwist = TwistStamped()
@@ -395,25 +401,28 @@ def ProcessXlateImage( data ):
         NewTwist.header.frame_id = 'lost'
         NewTwist.twist.linear.x = 0
         NewTwist.twist.linear.y = 0
-        NewTwist.twist.linear.z = 0
+        NewTwist.twist.linear.z = NavTwist.linear.z
         NewTwist.twist.angular.z = 0
         p_x.Reset()
         p_y.Reset()
         p_z.Reset()
+        p_z_ang.Reset()
         prev_key = 'foobar'
         pub = rospy.Publisher("cmd_vel", Twist )
         pub.publish( NewTwist.twist )
         #ProcessImagePosition( NewTwist )
     
 def ProcessNavData(data):
-    NewNavdata = Navdata()
-    print NewNavdata
+    global p_z_alt
+    global NavTwist
+    #NewNavdata = Navdata()
+    NavTwist.linear.z = p_z_alt.ComputePID(data.altd-ALT_Z_GOAL)
     
 def DroneDriver():
     rospy.init_node('drone_driver')
     rospy.Subscriber("tags", Tags, ProcessXlateImage )   
     rospy.Subscriber("image_pos", TwistStamped, ProcessImagePosition )
-    rospy.Subscriber("/adrone/navdata", TwistStamped, ProcessNavData )
+    rospy.Subscriber("/ardrone/navdata", Navdata, ProcessNavData )
     rospy.spin()
 
 if __name__ == '__main__':

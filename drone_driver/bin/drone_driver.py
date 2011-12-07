@@ -70,6 +70,21 @@ class PID:
         self.IsInit = True
         self.Time = datetime.datetime.now()
 
+    def IncrementKp(self, Kp):
+        self.Kp += Kp
+        log.info("%s, Kp, %f, Ki, %f, Kd, %f" % (self.Key, self.Kp, self.Ki, self.Kd))
+        self.Reset()
+    
+    def IncrementKi(self, Ki):
+        self.Ki += Ki
+        log.info("%s, Kp, %f, Ki, %f, Kd, %f" % (self.Key, self.Kp, self.Ki, self.Kd))
+        self.Reset()
+    
+    def IncrementKd(self, Kd):
+        self.Kd += Kd
+        log.info("%s, Kp, %f, Ki, %f, Kd, %f" % (self.Key, self.Kp, self.Ki, self.Kd))
+        self.Reset()
+        
     def ComputePID(self,CurVal):
         global log
         self.Err = self.Goal - CurVal
@@ -155,12 +170,12 @@ DWN_X_MAX_VELOCITY = 0.1
 DWN_Y_MAX_VELOCITY = 0.1
 DWN_Z_MAX_VELOCITY = 0.2
 DWN_Z_ANG_MAX_VELOCITY = 0.3
+DWN_X_VEL_SCALAR = 0.0020
 DWN_Y_VEL_SCALAR = 0.0015
-DWN_X_VEL_SCALAR = DWN_Y_VEL_SCALAR*(float(DWN_IMAGE_WIDTH)/DWN_IMAGE_HEIGHT)
-DWN_Z_VEL_SCALAR = 0.1
+DWN_Z_VEL_SCALAR = 0.01
 DWN_Z_ANG_VEL_SCALAR = 0.3
-DWN_X_DERIVATIVE_SCALAR = 500
-DWN_Y_DERIVATIVE_SCALAR = DWN_X_DERIVATIVE_SCALAR#*(float(DWN_IMAGE_WIDTH)/DWN_IMAGE_HEIGHT)
+DWN_X_DERIVATIVE_SCALAR = 550
+DWN_Y_DERIVATIVE_SCALAR = 450
 DWN_Z_DERIVATIVE_SCALAR = 7500
 DWN_Z_ANG_DERIVATIVE_SCALAR = 100
 DWN_X_INT_SCALAR = 0
@@ -168,8 +183,8 @@ DWN_Y_INT_SCALAR = 0
 DWN_Z_INT_SCALAR = 0
 DWN_Z_ANG_INT_SCALAR = 0
 DWN_X_DEAD_BAND=8 
-DWN_Y_DEAD_BAND=DWN_X_DEAD_BAND*float(float(DWN_IMAGE_WIDTH)/DWN_IMAGE_HEIGHT)
-DWN_Z_DEAD_BAND=1
+DWN_Y_DEAD_BAND=8
+DWN_Z_DEAD_BAND=0.1
 DWN_Z_ANG_DEAD_BAND=0
 DWN_TAG_DIAMETER=13
 ###################################################################
@@ -182,15 +197,14 @@ ALT_Z_INT_SCALAR = 0
 ALT_Z_DEAD_BAND=1
 ALT_Z_GOAL=1150
 
-ANG_VEL_TO_RADIANS_SCALAR=3
-
-
+ANG_VEL_TO_RADIANS_SCALAR = -0.01
 MAX_HISTORY=5
 DIRECTION_LETTERS = ['x','y','z']
 
-# Global Variables
+# Global Variables1
 MyTwist = TwistStamped()
 NavTwist = Twist()
+LastTwist = Twist()
 PrevDiameter = 0
 PrevVector = []
 p_x=PID('vel_x', FWD_X_VEL_SCALAR, FWD_X_INT_SCALAR, FWD_X_DERIVATIVE_SCALAR, FWD_X_MAX_VELOCITY, 0, FWD_X_DEAD_BAND)
@@ -205,7 +219,8 @@ PrevCam = False
 CurCam = False
 prev_key = 'foobar'
 TagFound = False
-PoseMatch = False
+PoseMatch = True
+AutoAltitude = False
     
 def CalcScaledVelocity( LineVector ):
     global p_x
@@ -230,6 +245,28 @@ def CalcScaledAngle( AngleVector ):
     print NewTwist
     print
     return NewTwist
+
+def ProcessChangePID( data ):
+    global p_x
+    global p_y
+    global p_z
+    global p_z_ang
+    global FwdCam
+    
+    if data.twist.linear.x != 0:
+        if data.header.frame_id == "p":
+            p_x.IncrementKp( data.twist.linear.x )
+        elif data.header.frame_id == "i":
+            p_x.IncrementKi( data.twist.linear.x )
+        elif data.header.frame_id == "d":
+            p_x.IncrementKd( data.twist.linear.x )
+    if data.twist.linear.y != 0:
+        if data.header.frame_id == "p":
+            p_y.IncrementKp( data.twist.linear.y )
+        elif data.header.frame_id == "i":
+            p_y.IncrementKi( data.twist.linear.y )
+        elif data.header.frame_id == "d":
+            p_y.IncrementKd( data.twist.linear.y )
     
 def ProcessImagePosition (data):
     global MyTwist
@@ -241,6 +278,7 @@ def ProcessImagePosition (data):
     global p_z_ang
     global ANG_VEL_TO_RADIANS_SCALAR
     global PoseMatch
+    global LastTwist
     
     pub = rospy.Publisher('cmd_vel', Twist)
     land_pub = rospy.Publisher('/ardrone/land', std_msgs.msg.Empty)
@@ -280,8 +318,6 @@ def ProcessImagePosition (data):
                 p_z_ang.ReInit('ang_z', DWN_Z_ANG_VEL_SCALAR, DWN_Z_ANG_INT_SCALAR, DWN_Z_ANG_DERIVATIVE_SCALAR, DWN_Z_ANG_MAX_VELOCITY, 0, DWN_Z_ANG_DEAD_BAND)
                 
             log.warn("ToggleCam %d" % FwdCam)
-            
-#            print FwdCam
         except rospy.ServiceException, e:
             log.critical("Service call failed: %s"%e)
             print "Service call failed: %s"%e
@@ -316,12 +352,13 @@ def ProcessImagePosition (data):
             MyTwist.twist.angular.z = 0
         PrevX = MyTwist.twist.linear.x
         PrevY = MyTwist.twist.linear.y
-        MyTwist.twist.linear.x = PrevX*math.cos(MyTwist.twist.angular.z*ANG_VEL_TO_RADIANS_SCALAR) + PrevY*math.sin(MyTwist.twist.angular.z*ANG_VEL_TO_RADIANS_SCALAR)
-        MyTwist.twist.linear.y = PrevY*math.cos(MyTwist.twist.angular.z*ANG_VEL_TO_RADIANS_SCALAR) + PrevX*math.sin(MyTwist.twist.angular.z*ANG_VEL_TO_RADIANS_SCALAR)
+        MyTwist.twist.linear.x = PrevX*math.cos(MyTwist.twist.angular.z*ANG_VEL_TO_RADIANS_SCALAR) - PrevY*math.sin(MyTwist.twist.angular.z*ANG_VEL_TO_RADIANS_SCALAR)
+        MyTwist.twist.linear.y = PrevX*math.sin(MyTwist.twist.angular.z*ANG_VEL_TO_RADIANS_SCALAR) + PrevY*math.cos(MyTwist.twist.angular.z*ANG_VEL_TO_RADIANS_SCALAR) 
     else:
         MyTwist.twist.angular.z = 0
             
     # Only publish the twist parameters to the drone
+    LastTwist = MyTwist.twist
     pub.publish(MyTwist.twist)
 #    if MyTwist.twist.linear.x != 0 or MyTwist.twist.linear.y != 0:
 #        print MyTwist
@@ -340,6 +377,7 @@ def ProcessXlateImage( data ):
     global DWN_TAG_DIAMETER
     global TagFound
     global NavTwist
+    global LastTwist
         
     InputTags = data
     NewTwist = TwistStamped()
@@ -387,27 +425,28 @@ def ProcessXlateImage( data ):
         while len(PrevVector) >= MAX_HISTORY:
             PrevVector.pop(0)
         PrevVector.append(NewTwist.twist)
-        
     else:
-        TagFound = False
-        # Extrapolate history
-#        try:
-#            NewTwist.twist = PrevVector.pop(0)
-#            print "Use History %d" % len(PrevVector)
-#            # Save off some history
-#        except IndexError, e:
-#            # Ran out of history
-#            print "No History"
         NewTwist.header.frame_id = 'lost'
-        NewTwist.twist.linear.x = 0
-        NewTwist.twist.linear.y = 0
-        NewTwist.twist.linear.z = NavTwist.linear.z
-        NewTwist.twist.angular.z = 0
-        p_x.Reset()
-        p_y.Reset()
-        p_z.Reset()
-        p_z_ang.Reset()
-        prev_key = 'foobar'
+        # Extrapolate history
+        try:
+            NewTwist.twist = PrevVector.pop(0)
+            print "Use History %d" % len(PrevVector)
+            NewTwist.twist = LastTwist
+            # Save off some history
+        except IndexError, e:
+            
+            # Ran out of history
+            NewTwist.twist.linear.x = 0
+            NewTwist.twist.linear.y = 0
+            NewTwist.twist.linear.z = NavTwist.linear.z
+            NewTwist.twist.angular.z = 0
+        if TagFound:
+            p_x.Reset()
+            p_y.Reset()
+            p_z.Reset()
+            p_z_ang.Reset()
+            prev_key = 'foobar'
+        TagFound = False    
         pub = rospy.Publisher("cmd_vel", Twist )
         pub.publish( NewTwist.twist )
         #ProcessImagePosition( NewTwist )
@@ -415,16 +454,19 @@ def ProcessXlateImage( data ):
 def ProcessNavData(data):
     global p_z_alt
     global NavTwist
-    #NewNavdata = Navdata()
-    NavTwist.linear.z = p_z_alt.ComputePID(data.altd-ALT_Z_GOAL)
+    global AutoAltitude
+    if AutoAltitude:
+        NavTwist.linear.z = p_z_alt.ComputePID(data.altd-ALT_Z_GOAL)
+    else:
+        NavTwist.linear.z = 0
     
 def DroneDriver():
     rospy.init_node('drone_driver')
     rospy.Subscriber("tags", Tags, ProcessXlateImage )   
-    rospy.Subscriber("image_pos", TwistStamped, ProcessImagePosition )
+    rospy.Subscriber("image_pos", TwistStamped, ProcessChangePID )
     rospy.Subscriber("/ardrone/navdata", Navdata, ProcessNavData )
     rospy.spin()
 
 if __name__ == '__main__':
-    DroneDriver()
+    DroneDriver() 
 

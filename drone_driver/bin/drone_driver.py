@@ -6,9 +6,12 @@ from ar_recog.msg import Tag, Tags
 from geometry_msgs.msg import TwistStamped
 from geometry_msgs.msg import Twist
 from ardrone_brown.msg import Navdata
+from std_msgs.msg import Empty
+
 import std_msgs.msg
 import std_srvs.srv
 import math, logging, datetime
+import subprocess
 
 logging.basicConfig()
 log = logging.getLogger("DroneDriver")
@@ -99,7 +102,8 @@ class PID:
             # Proportional
             ###################################################################
             self.P = self.Kp * self.Err
-            
+            from std_msgs.msg import Empty
+
             ###################################################################
             # Derivative
             ###################################################################
@@ -189,7 +193,8 @@ DWN_Z_ANG_DEAD_BAND=0
 DWN_TAG_DIAMETER=13
 ###################################################################
 # No Tag Constants 
-###################################################################
+###########################################from std_msgs.msg import Empty
+########################
 ALT_Z_MAX_VELOCITY = 0.5
 ALT_Z_VEL_SCALAR = 0.0005
 ALT_Z_DERIVATIVE_SCALAR = 100
@@ -219,8 +224,9 @@ PrevCam = False
 CurCam = False
 prev_key = 'foobar'
 TagFound = False
-PoseMatch = True
+PoseMatch = False
 AutoAltitude = False
+processHandle = subprocess.Popen("rosrun ar_recog ar_recog image:=/ardrone/image_raw camera_info:=/ardrone/camera_info", cwd="/home/base/ros/brown-ros-pkg/experimental/ar_recog/bin", shell=True) 
     
 def CalcScaledVelocity( LineVector ):
     global p_x
@@ -279,6 +285,7 @@ def ProcessImagePosition (data):
     global ANG_VEL_TO_RADIANS_SCALAR
     global PoseMatch
     global LastTwist
+    global processHandle
     
     pub = rospy.Publisher('cmd_vel', Twist)
     land_pub = rospy.Publisher('/ardrone/land', std_msgs.msg.Empty)
@@ -306,6 +313,8 @@ def ProcessImagePosition (data):
         try:
             toggleCam()
             FwdCam = not FwdCam
+            processHandle.kill()
+            processHandle = subprocess.Popen("rosrun ar_recog ar_recog image:=/ardrone/image_raw camera_info:=/ardrone/camera_info", cwd="/home/base/ros/brown-ros-pkg/experimental/ar_recog/bin", shell=True) 
             if FwdCam:
                 p_x.ReInit('vel_x', FWD_X_VEL_SCALAR, FWD_X_INT_SCALAR, FWD_X_DERIVATIVE_SCALAR, FWD_X_MAX_VELOCITY, 0, FWD_X_DEAD_BAND)
                 p_y.ReInit('vel_y', FWD_Y_VEL_SCALAR, FWD_Y_INT_SCALAR, FWD_Y_DERIVATIVE_SCALAR, FWD_Y_MAX_VELOCITY, 0, FWD_Y_DEAD_BAND)
@@ -316,7 +325,7 @@ def ProcessImagePosition (data):
                 p_y.ReInit('vel_y', DWN_Y_VEL_SCALAR, DWN_Y_INT_SCALAR, DWN_Y_DERIVATIVE_SCALAR, DWN_Y_MAX_VELOCITY, 0, DWN_Y_DEAD_BAND)
                 p_z.ReInit('vel_z', DWN_Z_VEL_SCALAR, DWN_Z_INT_SCALAR, DWN_Z_DERIVATIVE_SCALAR, DWN_Z_MAX_VELOCITY, 0, DWN_Z_DEAD_BAND)
                 p_z_ang.ReInit('ang_z', DWN_Z_ANG_VEL_SCALAR, DWN_Z_ANG_INT_SCALAR, DWN_Z_ANG_DERIVATIVE_SCALAR, DWN_Z_ANG_MAX_VELOCITY, 0, DWN_Z_ANG_DEAD_BAND)
-                
+            print "ToggleCam %d" % FwdCam 
             log.warn("ToggleCam %d" % FwdCam)
         except rospy.ServiceException, e:
             log.critical("Service call failed: %s"%e)
@@ -345,7 +354,7 @@ def ProcessImagePosition (data):
         print 'NaN Z',
         MyTwist.twist.linear.z = 0
 
-    if PoseMatch:
+    if PoseMatch and not FwdCam:
         MyTwist.twist.angular = CalcScaledAngle( NewTwist.twist.angular )
         if ( math.isnan( MyTwist.twist.angular.z ) ):
             print 'NaN Z Ang',
@@ -382,7 +391,7 @@ def ProcessXlateImage( data ):
     InputTags = data
     NewTwist = TwistStamped()
     
-    if InputTags.image_width != 320 and FwdCam:
+    if InputTags.image_width != 320 and FwdCam and prev_key != 'switch':
         print "Switch to Down Cam"
         p_x.ReInit('vel_x', DWN_X_VEL_SCALAR, DWN_X_INT_SCALAR, DWN_X_DERIVATIVE_SCALAR, DWN_X_MAX_VELOCITY, 0, DWN_X_DEAD_BAND)
         p_y.ReInit('vel_y', DWN_Y_VEL_SCALAR, DWN_Y_INT_SCALAR, DWN_Y_DERIVATIVE_SCALAR, DWN_Y_MAX_VELOCITY, 0, DWN_Y_DEAD_BAND)
@@ -416,8 +425,9 @@ def ProcessXlateImage( data ):
             NewTwist.twist.linear.x = InputTags.tags[0].y - ( DWN_IMAGE_HEIGHT/2 )
             NewTwist.twist.linear.y = InputTags.tags[0].x - ( DWN_IMAGE_WIDTH/2 )
             NewTwist.twist.linear.z = DWN_TAG_DIAMETER - InputTags.tags[0].diameter
-            NewTwist.twist.angular.z = InputTags.tags[0].zRot
-        
+            print InputTags.tags[0].zRot
+            NewTwist.twist.angular.z = 2*math.pi - InputTags.tags[0].zRot
+            
         #rospy.Publisher("image_pos", NewTwist )
         ProcessImagePosition( NewTwist )
 
@@ -461,6 +471,8 @@ def ProcessNavData(data):
         NavTwist.linear.z = 0
     
 def DroneDriver():
+    global processHandle
+    
     rospy.init_node('drone_driver')
     rospy.Subscriber("tags", Tags, ProcessXlateImage )   
     rospy.Subscriber("image_pos", TwistStamped, ProcessChangePID )
@@ -468,5 +480,15 @@ def DroneDriver():
     rospy.spin()
 
 if __name__ == '__main__':
-    DroneDriver() 
-
+    try:
+        DroneDriver()
+    except Exception as e:
+        print e
+        print repr(e)
+        
+    finally:
+        processHandle.kill()
+        land_pub = rospy.Publisher('/ardrone/land', std_msgs.msg.Empty)
+        # emergency land on exit
+        land_pub.publish(Empty())
+        print "Done"

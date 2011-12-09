@@ -1,0 +1,18 @@
+<package>
+  <description brief="nxt_driver">
+
+     drone_driver
+
+  </description>
+  <author>Base Station</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/drone_driver</url>
+  <depend package="geometry_msgs"/>
+  <depend package="std_srvs"/>
+  <depend package="std_msgs"/>
+  <depend package="ar_recog"/>
+
+</package>
+
+
